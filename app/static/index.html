@@ -15,6 +15,15 @@
           Jurisdiction-aware crypto tax estimation with explainable rule application,
           fallback handling, and demo-ready CSV ingestion.
         </p>
+        <div class="hero-orb" aria-hidden="true"></div>
+      </section>
+
+      <section class="panel guide-panel">
+        <div class="panel-head">
+          <h2>Guided Workflow</h2>
+          <button id="manifest-button" type="button" class="secondary">Copy Agent Manifest</button>
+        </div>
+        <div class="guide-grid" id="guide-grid"></div>
       </section>
 
       <section class="panel form-panel">
@@ -25,11 +34,7 @@
         <form id="report-form">
           <label>
             Jurisdiction
-            <select name="jurisdiction">
-              <option value="US">United States</option>
-              <option value="UK">United Kingdom</option>
-              <option value="NG">Nigeria</option>
-            </select>
+            <select name="jurisdiction" id="jurisdiction-select"></select>
           </label>
           <label>
             Tax Year
@@ -44,6 +49,7 @@
           <button id="export-button" type="button" class="secondary hidden">Export Markdown</button>
           <button id="html-button" type="button" class="secondary hidden">Export HTML</button>
           <button id="bundle-button" type="button" class="secondary hidden">Save Bundle</button>
+          <button id="publish-button" type="button" class="secondary">Publish Build Snapshot</button>
         </form>
         <p id="status" class="status">Upload a CSV to generate a report.</p>
       </section>

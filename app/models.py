@@ -188,6 +188,29 @@ class NormalizationPreviewItem(BaseModel):
     normalized: NormalizedTransaction
 
 
+class SupportedJurisdiction(BaseModel):
+    code: str
+    label: str
+    tax_years: list[int] = Field(default_factory=list)
+
+
+class AgentManifest(BaseModel):
+    app_name: str
+    version: str
+    workflow: list[str]
+    safety_checks: list[str]
+    element_explanations: dict[str, str]
+    recommended_endpoints: list[str]
+
+
+class PublishedBuild(BaseModel):
+    publish_id: str
+    directory: str
+    summary_markdown: str
+    included_artifacts: list[str] = Field(default_factory=list)
+    included_docs: list[str] = Field(default_factory=list)
+
+
 class GenerateReportRequest(BaseModel):
     jurisdiction: str = Field(min_length=2, max_length=8)
     tax_year: int = Field(ge=2000)

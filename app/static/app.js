@@ -14,8 +14,14 @@ const bundleButton = document.getElementById("bundle-button");
 const htmlButton = document.getElementById("html-button");
 const bundlePanel = document.getElementById("bundle");
 const bundleDetails = document.getElementById("bundle-details");
+const publishButton = document.getElementById("publish-button");
 const refreshHistoryButton = document.getElementById("refresh-history-button");
 const historyList = document.getElementById("history-list");
+const guideGrid = document.getElementById("guide-grid");
+const manifestButton = document.getElementById("manifest-button");
+const jurisdictionSelect = document.getElementById("jurisdiction-select");
+
+let agentManifestCache = null;
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -193,8 +199,47 @@ bundleButton.addEventListener("click", async () => {
   }
 });
 
+publishButton.addEventListener("click", async () => {
+  statusNode.textContent = "Publishing current work snapshot...";
+  try {
+    const response = await fetch("/publish", { method: "POST" });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Publish failed.");
+    }
+
+    bundleDetails.innerHTML = `
+      <div>Publish ID</div>
+      <code>${escapeHtml(payload.publish_id)}</code>
+      <div>Publish Directory</div>
+      <code>${escapeHtml(payload.directory)}</code>
+      <div>Summary Markdown</div>
+      <code>${escapeHtml(payload.summary_markdown)}</code>
+      <div>Included Docs</div>
+      <code>${escapeHtml((payload.included_docs || []).join("\n") || "none")}</code>
+      <div>Included Artifacts</div>
+      <code>${escapeHtml((payload.included_artifacts || []).join("\n") || "none")}</code>
+    `;
+    bundlePanel.classList.remove("hidden");
+    statusNode.textContent = "Build snapshot published locally.";
+  } catch (error) {
+    statusNode.textContent = error.message;
+  }
+});
+
 refreshHistoryButton.addEventListener("click", async () => {
   await loadArtifactHistory();
+});
+
+manifestButton.addEventListener("click", async () => {
+  statusNode.textContent = "Preparing agent manifest...";
+  try {
+    const manifest = await loadAgentManifest();
+    await navigator.clipboard.writeText(JSON.stringify(manifest, null, 2));
+    statusNode.textContent = "Agent manifest copied to clipboard.";
+  } catch (error) {
+    statusNode.textContent = error.message;
+  }
 });
 
 function renderSummary(summary) {
@@ -328,4 +373,59 @@ async function loadArtifactHistory() {
   }
 }
 
+async function loadJurisdictions() {
+  try {
+    const response = await fetch("/jurisdictions");
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Failed to load jurisdictions.");
+    }
+
+    if (!Array.isArray(payload) || payload.length === 0) {
+      jurisdictionSelect.innerHTML = '<option value="US">United States</option>';
+      return;
+    }
+
+    jurisdictionSelect.innerHTML = payload
+      .map((item) => `<option value="${escapeHtml(item.code)}">${escapeHtml(item.label)}</option>`)
+      .join("");
+  } catch (error) {
+    jurisdictionSelect.innerHTML = '<option value="US">United States</option>';
+    statusNode.textContent = error.message;
+  }
+}
+
+async function loadAgentManifest() {
+  if (agentManifestCache) {
+    return agentManifestCache;
+  }
+  const response = await fetch("/agent/manifest");
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload.detail || "Failed to load agent manifest.");
+  }
+  agentManifestCache = payload;
+  return payload;
+}
+
+async function loadGuideCards() {
+  try {
+    const manifest = await loadAgentManifest();
+    guideGrid.innerHTML = manifest.workflow
+      .map(
+        (step, index) => `
+          <article>
+            <span>Step ${index + 1}</span>
+            <p>${escapeHtml(step)}</p>
+          </article>
+        `,
+      )
+      .join("");
+  } catch (error) {
+    guideGrid.innerHTML = `<article><span>Unavailable</span><p>${escapeHtml(error.message)}</p></article>`;
+  }
+}
+
 loadArtifactHistory();
+loadJurisdictions();
+loadGuideCards();

@@ -33,6 +33,20 @@ body {
 
 .hero {
   padding: 32px 0 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-orb {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  right: 2%;
+  top: 12px;
+  background: radial-gradient(circle at 28% 28%, rgba(255, 255, 255, 0.8), rgba(15, 118, 110, 0.38) 60%, rgba(17, 24, 39, 0.28));
+  box-shadow: inset -14px -22px 42px rgba(17, 24, 39, 0.24), 0 30px 70px rgba(15, 118, 110, 0.24);
+  transform: rotate(-18deg);
 }
 
 .eyebrow {
@@ -71,6 +85,39 @@ h1 {
   background: var(--panel);
   backdrop-filter: blur(12px);
   box-shadow: var(--shadow);
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.guide-grid article {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--stroke);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.9), rgba(232, 244, 242, 0.68));
+  transform-style: preserve-3d;
+  transform: perspective(680px) rotateX(7deg);
+}
+
+.guide-grid span {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-family: "Trebuchet MS", sans-serif;
+}
+
+.guide-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-family: "Trebuchet MS", sans-serif;
+  line-height: 1.45;
+  font-size: 0.9rem;
 }
 
 .form-panel {
@@ -278,8 +325,15 @@ td small a {
 
 @media (max-width: 860px) {
   form,
-  .metrics {
+  .metrics,
+  .guide-grid {
     grid-template-columns: 1fr;
+  }
+
+  .hero-orb {
+    opacity: 0.45;
+    width: 150px;
+    height: 150px;
   }
 
   .shell {

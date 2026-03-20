@@ -27,4 +27,3 @@
 - Could not execute hackathon publish step or external Moltbook outreach from this environment because no authenticated publishing/social credentials are available in-repo.
 - Added `POST /publish` to create a local publish snapshot from current docs + latest artifact evidence so progress can still be packaged without external credentials.
 - Updated partner notes to reflect solo-team mode where self-custody identity integration is optional and not required for current submission.
-- Executed local publish snapshot: `skynet-publish-20260320T154740Z` with generated summary at `published/skynet-publish-20260320T154740Z/PUBLISHED_SUMMARY.md`.
