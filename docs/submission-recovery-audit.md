@@ -39,12 +39,7 @@ No trace of the following was found in repo history, local shell history, or cur
 Use `scripts/publish_synthesis.sh` once credentials are available again:
 
 1. `catalog`
-2. `whoami` and `cache-session`
+2. `team` (or `whoami`, if added later)
 3. `create` / `update`
 4. `publish`
 5. `verify`
-
-
-## Persistence Policy Update
-
-To prevent this issue going forward, the publish CLI now includes `cache-session`, which can persist discovered `TEAM_UUID` and `PROJECT_UUID` into `tmp/synthesis_session.env` (git-ignored) after authenticated API discovery.

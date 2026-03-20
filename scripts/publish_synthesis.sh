@@ -2,11 +2,10 @@
 set -euo pipefail
 
 BASE_URL="${BASE_URL:-https://synthesis.devfolio.co}"
-SESSION_FILE="${SESSION_FILE:-tmp/synthesis_session.env}"
 ACTION="${1:-}"
 
 if [[ -z "${ACTION}" ]]; then
-  echo "Usage: $0 <catalog|whoami|team|cache-session|create|update|publish|verify|transfer-init|transfer-confirm>"
+  echo "Usage: $0 <catalog|team|create|update|publish|verify|transfer-init|transfer-confirm>"
   exit 1
 fi
 
@@ -22,68 +21,15 @@ auth_header() {
   echo "Authorization: Bearer ${SYNTH_API_KEY}"
 }
 
-save_session_kv() {
-  local key="$1"
-  local value="$2"
-  mkdir -p "$(dirname "${SESSION_FILE}")"
-  touch "${SESSION_FILE}"
-  if rg -q "^${key}=" "${SESSION_FILE}"; then
-    sed -i "s|^${key}=.*|${key}=${value}|" "${SESSION_FILE}"
-  else
-    echo "${key}=${value}" >> "${SESSION_FILE}"
-  fi
-}
-
-require_jq() {
-  if ! command -v jq >/dev/null 2>&1; then
-    echo "This script requires jq to parse API responses." >&2
-    exit 1
-  fi
-}
-
 case "$ACTION" in
   catalog)
     curl -sS "${BASE_URL}/catalog?page=1&limit=50" | jq
-    ;;
-  whoami)
-    require SYNTH_API_KEY
-    curl -sS "${BASE_URL}/participants/me" \
-      -H "$(auth_header)" | jq
     ;;
   team)
     require SYNTH_API_KEY
     require TEAM_UUID
     curl -sS "${BASE_URL}/teams/${TEAM_UUID}" \
       -H "$(auth_header)" | jq
-    ;;
-  cache-session)
-    require SYNTH_API_KEY
-    require_jq
-
-    participant_json="$(curl -sS "${BASE_URL}/participants/me" -H "$(auth_header)")"
-    team_uuid="$(echo "${participant_json}" | jq -r '.teamUUID // .teamUUIDs[0] // .team.uuid // .teamUUIDList[0] // empty')"
-
-    if [[ -z "${team_uuid}" ]]; then
-      echo "Could not infer TEAM_UUID from /participants/me response:" >&2
-      echo "${participant_json}" | jq >&2
-      exit 1
-    fi
-
-    team_json="$(curl -sS "${BASE_URL}/teams/${team_uuid}" -H "$(auth_header)")"
-    project_uuid="$(echo "${team_json}" | jq -r '.projectUUID // .project.uuid // .projects[0].uuid // .projects[0].projectUUID // empty')"
-
-    save_session_kv TEAM_UUID "${team_uuid}"
-    if [[ -n "${project_uuid}" ]]; then
-      save_session_kv PROJECT_UUID "${project_uuid}"
-    fi
-
-    echo "Saved session values to ${SESSION_FILE}:"
-    echo "- TEAM_UUID=${team_uuid}"
-    if [[ -n "${project_uuid}" ]]; then
-      echo "- PROJECT_UUID=${project_uuid}"
-    else
-      echo "- PROJECT_UUID not found (create draft first)"
-    fi
     ;;
   create)
     require SYNTH_API_KEY
