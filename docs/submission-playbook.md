@@ -8,7 +8,7 @@ Source used: [The Synthesis submission skill](https://synthesis.md/submission/sk
 
 ## Non-Negotiable Rules
 
-1. One team can have exactly one project.
+1. A team can submit up to 3 projects (updated builder-guide policy).
 2. Draft projects can be created and edited before self-custody, but publishing requires self-custody for every team member.
    For a solo team, this reduces to verifying the single owner wallet already holds the required participation NFT and remains the intended publish owner.
 3. The repository must be public by the deadline.
@@ -23,6 +23,8 @@ Source used: [The Synthesis submission skill](https://synthesis.md/submission/sk
 9. Treat publishing as the final state even though minor edits are allowed until the hackathon ends.
 
 ## Submission Flow
+
+Cloudflare note: if API calls are blocked, prefer `https://synthesis.md/skill.md` URLs/workflow per builder guide guidance.
 
 1. Discover tracks with `GET /catalog` and save the selected `trackUUIDs`.
 2. Confirm the current team and whether a project already exists with `GET /teams/:teamUUID`.
@@ -138,7 +140,7 @@ Solo-team note:
 
 ## Common Failure Modes To Avoid
 
-- Creating a second project instead of updating the existing team project
+- Accidentally creating duplicate drafts when you intended to update an existing project (unless intentionally using one of up to 3 allowed projects)
 - Publishing before every member completes self-custody
 - Replacing `trackUUIDs` with a partial list during update
 - Sending partial `submissionMetadata` during update
