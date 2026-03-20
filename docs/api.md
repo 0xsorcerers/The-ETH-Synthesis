@@ -9,11 +9,17 @@ pip install -e .[dev]
 uvicorn app.main:app --reload
 ```
 
+Then open `http://127.0.0.1:8000/` for the browser demo UI.
+
 ## Endpoints
 
 ### `GET /health`
 
 Simple health check.
+
+### `GET /`
+
+Serves the browser-based demo interface for CSV upload and report review.
 
 ### `POST /reports/generate`
 
@@ -52,3 +58,7 @@ The generated report includes:
 - line-by-line explainability data
 - fallback indicators when no jurisdiction-specific rule exists
 - assumptions used by the MVP engine
+
+## Collaboration Trail
+
+Hackathon progress notes are tracked in `docs/collaboration-log.md`.

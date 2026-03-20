@@ -6,6 +6,14 @@ from app.main import app
 client = TestClient(app)
 
 
+def test_index_serves_demo_ui():
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "Skynet" in response.text
+    assert "Generate Report" in response.text
+
+
 def test_generate_report_from_json():
     response = client.post(
         "/reports/generate",

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skynet Tax Engine</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">The Synthesis MVP</p>
+        <h1>Skynet</h1>
+        <p class="lede">
+          Jurisdiction-aware crypto tax estimation with explainable rule application,
+          fallback handling, and demo-ready CSV ingestion.
+        </p>
+      </section>
+
+      <section class="panel form-panel">
+        <div class="panel-head">
+          <h2>Generate Report</h2>
+          <a href="/static/demo_transactions.csv" download>Download sample CSV</a>
+        </div>
+        <form id="report-form">
+          <label>
+            Jurisdiction
+            <select name="jurisdiction">
+              <option value="US">United States</option>
+              <option value="UK">United Kingdom</option>
+              <option value="NG">Nigeria</option>
+            </select>
+          </label>
+          <label>
+            Tax Year
+            <input type="number" name="tax_year" value="2025" min="2025" step="1" />
+          </label>
+          <label class="file-input">
+            Transactions CSV
+            <input type="file" name="file" accept=".csv" required />
+          </label>
+          <button type="submit">Run Analysis</button>
+        </form>
+        <p id="status" class="status">Upload a CSV to generate a report.</p>
+      </section>
+
+      <section id="summary" class="panel hidden">
+        <div class="panel-head">
+          <h2>Summary</h2>
+          <span id="summary-badge" class="badge"></span>
+        </div>
+        <div class="metrics">
+          <article>
+            <span>Taxable Income</span>
+            <strong id="income-total">$0.00</strong>
+          </article>
+          <article>
+            <span>Capital Gains</span>
+            <strong id="gains-total">$0.00</strong>
+          </article>
+          <article>
+            <span>Capital Losses</span>
+            <strong id="losses-total">$0.00</strong>
+          </article>
+          <article>
+            <span>Fallback Events</span>
+            <strong id="fallback-total">0</strong>
+          </article>
+        </div>
+      </section>
+
+      <section id="assumptions" class="panel hidden">
+        <div class="panel-head">
+          <h2>Assumptions</h2>
+        </div>
+        <ul id="assumption-list"></ul>
+      </section>
+
+      <section id="report" class="panel hidden">
+        <div class="panel-head">
+          <h2>Line Items</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tx</th>
+                <th>Asset</th>
+                <th>Event</th>
+                <th>Treatment</th>
+                <th>Taxable</th>
+                <th>Gain/Loss</th>
+                <th>Confidence</th>
+                <th>Flags</th>
+              </tr>
+            </thead>
+            <tbody id="report-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

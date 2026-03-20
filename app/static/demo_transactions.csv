@@ -1,0 +1,7 @@
+tx_id,timestamp,asset,quantity,event_hint,price_usd,proceeds_usd,fee_usd,counter_asset,description
+tx-001,2025-01-10T09:00:00Z,ETH,1.5,income,2400,,0,,salary payment in ETH
+tx-002,2025-02-18T12:00:00Z,ETH,0.2,staking,2650,,0,,staking reward payout
+tx-003,2025-03-02T15:30:00Z,ETH,0.5,swap,,1600,25,SOL,swap ETH into SOL
+tx-004,2025-03-20T16:00:00Z,ETH,0.1,transfer,,0,4,,transfer to cold wallet
+tx-005,2025-04-08T11:45:00Z,ETH,0.4,swap,,1200,10,BTC,rebalance into BTC
+
