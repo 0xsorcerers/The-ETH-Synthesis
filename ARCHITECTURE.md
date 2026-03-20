@@ -21,6 +21,7 @@
 3. **Ingestion Service**
    - Parses transaction inputs
    - Normalizes into canonical transaction schema
+   - Runs a CSV readiness inspection contract before full parsing so structural blockers and weak metadata are surfaced early
 
 4. **Classification Service**
    - Rule-based first pass
@@ -39,14 +40,27 @@
    - Produces summary, assumptions, confidence, and audit log
    - Exports markdown/PDF/JSON
 
+8. **Operator Guide Layer**
+   - Exposes a structured explanation contract for UI surfaces and report elements
+   - Helps human operators and AI agents follow the same safe workflow
+   - Keeps explanation metadata separate from tax-calculation logic
+
+9. **Autonomy Planner**
+   - Combines readiness inspection, normalization-preview confidence, and rule coverage into a single machine-readable run decision
+   - Tells agents whether to repair CSV inputs, pause for review, or continue into full analysis
+   - Reduces orchestration logic duplicated across UI clients and autonomous workers
+
 ## Data Flow
 
 1. User uploads transactions.
-2. Ingestion normalizes to canonical schema.
-3. Classifier tags each event type.
-4. Rule engine resolves applicable rule set.
-5. Calculation engine computes tax-relevant totals.
-6. Report generator returns explainable output and export artifacts.
+2. Readiness inspection flags missing columns, duplicate transaction IDs, and weak pricing or counter-asset metadata.
+3. Ingestion normalizes to canonical schema.
+4. Classifier tags each event type.
+5. Rule engine resolves applicable rule set.
+6. Calculation engine computes tax-relevant totals.
+7. Report generator returns explainable output and export artifacts.
+8. Operator guide exposes machine-readable workflow and element descriptions for UI clients and agents.
+9. Autonomy planner emits the recommended next action and handoff steps before a fully autonomous run proceeds.
 
 ## Fallback Strategy
 
@@ -73,6 +87,14 @@ Skynet now includes lightweight agent affordances:
 - `GET /jurisdictions` for machine-readable support discovery.
 - `GET /agent/manifest` for workflow steps, UI element semantics, and safety checks.
 - UI-level guided workflow cards so both humans and AI operators use the same execution path.
+
+The product should also expose:
+
+- a stable ingestion-readiness contract for preflight file validation
+- a stable guide to major UI elements
+- a stable autonomy-plan contract for branching autonomous workflows
+- operational notes for autonomous agents
+- report-field explanations that can be consumed without scraping the UI
 
 ## Suggested Tech Stack
 

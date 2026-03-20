@@ -9,9 +9,12 @@ from fastapi.staticfiles import StaticFiles
 from app.models import GenerateReportRequest
 from app.services import (
     build_agent_manifest,
+    build_autonomy_plan,
     export_report_html,
     export_report_markdown,
     generate_report,
+    get_explanation_guide,
+    inspect_csv_readiness,
     list_artifact_bundles,
     list_partner_integrations,
     list_supported_jurisdictions,
@@ -54,6 +57,25 @@ def jurisdictions():
 @app.get("/agent/manifest")
 def agent_manifest():
     return build_agent_manifest()
+
+
+@app.get("/guide")
+def guide():
+    return get_explanation_guide()
+
+
+@app.post("/ingestion/readiness-from-csv")
+async def ingestion_readiness_from_csv(file: UploadFile = File(...)):
+    return inspect_csv_readiness(await file.read())
+
+
+@app.post("/autonomy/plan-from-csv")
+async def autonomy_plan_from_csv(
+    jurisdiction: str = Form(...),
+    tax_year: int = Form(...),
+    file: UploadFile = File(...),
+):
+    return build_autonomy_plan(await file.read(), jurisdiction, tax_year)
 
 
 @app.get("/artifacts")

@@ -176,6 +176,75 @@ def test_agent_manifest_endpoint():
     assert any("harmful" in item for item in body["safety_checks"])
 
 
+def test_guide_endpoint():
+    response = client.get("/guide")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["product_name"] == "Skynet"
+    assert any(step["id"] == "inspect" for step in body["workflows"])
+    assert any(step["id"] == "preview" for step in body["workflows"])
+    assert any(item["id"] == "csv-readiness-panel" for item in body["ui_elements"])
+    assert any(item["id"] == "normalization-preview" for item in body["ui_elements"])
+    assert any(item["id"] == "formula-audit" for item in body["report_elements"])
+    assert any("fallback" in note.lower() for note in body["autonomous_usage_notes"])
+
+
+def test_ingestion_readiness_from_csv_upload():
+    csv_bytes = b"""tx_id,timestamp,asset,quantity,tx_hash,network,wallet_provider,source_app,event_hint,price_usd,proceeds_usd,fee_usd,counter_asset,counter_quantity,description
+tx-001,2025-01-10T09:00:00Z,ETH,1.5,,Base,MetaMask,Payroll App,income,2400,,0,,,salary payment
+tx-001,2025-03-02T15:30:00Z,ETH,0.5,,Base,MetaMask,Uniswap,swap,,,25,SOL,,swap without counter quantity
+"""
+    response = client.post(
+        "/ingestion/readiness-from-csv",
+        files={"file": ("demo.csv", csv_bytes, "text/csv")},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["summary"]["readiness"] == "blocked"
+    assert body["summary"]["total_rows"] == 2
+    assert body["summary"]["error_count"] >= 1
+    assert body["summary"]["warning_count"] >= 1
+    assert any(issue["message"] == "Duplicate transaction ID detected." for issue in body["issues"])
+    assert any(issue["message"] == "Counter asset is present without counter quantity." for issue in body["issues"])
+
+
+def test_autonomy_plan_blocks_bad_csv():
+    csv_bytes = b"""tx_id,timestamp,asset,quantity,tx_hash,network,wallet_provider,source_app,event_hint,price_usd,proceeds_usd,fee_usd,counter_asset,counter_quantity,description
+tx-001,2025-01-10T09:00:00Z,ETH,1.5,,Base,MetaMask,Payroll App,income,2400,,0,,,salary payment
+tx-001,2025-03-02T15:30:00Z,ETH,0.5,,Base,MetaMask,Uniswap,swap,,,25,SOL,,swap without counter quantity
+"""
+    response = client.post(
+        "/autonomy/plan-from-csv",
+        data={"jurisdiction": "US", "tax_year": "2025"},
+        files={"file": ("demo.csv", csv_bytes, "text/csv")},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["autonomy_status"] == "blocked"
+    assert body["recommended_action"] == "repair_csv"
+    assert body["stats"]["blocked_rows"] >= 1
+    assert any(step["id"] == "repair" and step["status"] == "blocked" for step in body["next_steps"])
+
+
+def test_autonomy_plan_reviews_fallback_prone_csv():
+    with open("samples/demo_transactions.csv", "rb") as handle:
+        response = client.post(
+            "/autonomy/plan-from-csv",
+            data={"jurisdiction": "NG", "tax_year": "2025"},
+            files={"file": ("demo_transactions.csv", handle, "text/csv")},
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["autonomy_status"] == "review"
+    assert body["recommended_action"] == "review_predictions"
+    assert body["stats"]["predicted_fallback_count"] >= 1
+    assert any(step["id"] == "analyze" for step in body["next_steps"])
+
+
 def test_normalization_preview_endpoint():
     response = client.post(
         "/normalize/preview",

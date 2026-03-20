@@ -33,6 +33,47 @@ Returns the currently supported jurisdiction codes and available tax years disco
 
 Returns an agent-oriented manifest describing recommended workflow, safety checks, endpoint affordances, and key app element explanations.
 
+### `GET /guide`
+
+Returns a structured operator guide for both humans and AI agents, including:
+
+- product purpose and version
+- recommended workflow steps
+- workflow steps including CSV readiness inspection
+- explanations for major UI surfaces
+- explanations for major report fields
+- autonomous-use notes
+- scalability notes
+
+### `POST /autonomy/plan-from-csv`
+
+Accepts multipart form fields:
+
+- `jurisdiction`
+- `tax_year`
+- `file`
+
+Returns a machine-readable autonomy run decision with:
+
+- overall autonomy status (`ready`, `review`, `blocked`)
+- recommended action for the next branch (`generate_report`, `review_predictions`, `repair_csv`)
+- stats covering warning rows, low-confidence classifications, and predicted fallback usage
+- ordered next steps and endpoint hints for agent handoff
+- rationale and handoff notes for human or AI operators
+
+### `POST /ingestion/readiness-from-csv`
+
+Accepts multipart form fields:
+
+- `file`
+
+Returns a lightweight readiness report with:
+
+- required/present/missing CSV columns
+- row counts and readiness state (`ready`, `needs_review`, `blocked`)
+- row-level and file-level issues
+- agent notes for autonomous workflow gating
+
 ### `GET /artifacts`
 
 Returns the saved artifact bundle history from the local `artifacts/` directory.
@@ -96,6 +137,13 @@ The generated report includes:
 - normalized asset flow details for disposals and acquisitions
 - partner-signal counts for Base, Celo, MetaMask, and Uniswap metadata
 - protocol-aware handling for LP deposit, LP withdrawal, and unstaking events in the MVP
+
+The readiness report includes:
+
+- required/present/missing column visibility
+- blocker and warning counts before normalization
+- row-level recommendations for duplicate IDs, missing timestamps, weak valuation data, and incomplete swap legs
+- agent-oriented next-step decisions through the autonomy planner
 
 ## Markdown Export
 

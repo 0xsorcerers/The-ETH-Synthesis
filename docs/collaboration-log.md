@@ -22,9 +22,12 @@
 - Added structured formula audit details and HTML report export for richer reporting artifacts.
 - Added dynamic jurisdiction discovery endpoint (`/jurisdictions`) so clients and agents can scale to newly-added rule packs without frontend hardcoding.
 - Added agent manifest endpoint (`/agent/manifest`) with workflow, safety checks, and UI element explanations for autonomous usage.
-- Added a guided workflow panel and manifest-copy action in the UI, plus refreshed visual styling with a 3D hero orb and card depth treatment.
+- Added a guided workflow panel, operator guide surface, and manifest-copy action in the UI, plus refreshed visual styling with a 3D hero orb and card depth treatment.
 - Added in-memory rule-set caching in the rule loader to reduce repeated file reads as request volume grows.
-- Could not execute hackathon publish step or external Moltbook outreach from this environment because no authenticated publishing/social credentials are available in-repo.
 - Added `POST /publish` to create a local publish snapshot from current docs + latest artifact evidence so progress can still be packaged without external credentials.
-- Updated partner notes to reflect solo-team mode where self-custody identity integration is optional and not required for current submission.
-- Executed local publish snapshot: `skynet-publish-20260320T154740Z` with generated summary at `published/skynet-publish-20260320T154740Z/PUBLISHED_SUMMARY.md`.
+- Added a structured operator guide endpoint and browser guide surface so humans and AI agents share the same workflow and report-field explanations.
+- Digested the official submission skill and added a repo-local submission playbook with self-custody, metadata honesty, and publish-check requirements.
+- Added a CSV readiness inspection contract and browser panel so operators and autonomous agents can catch malformed or low-quality transaction files before normalization and reporting.
+- Added an autonomy run planner that converts readiness, normalization confidence, and rule coverage into a machine-readable next-action contract for human and AI operators.
+- Clarified the repo submission notes to reflect a solo-team registration path where the required NFT is already minted to the owner wallet, so publish readiness depends on verifying that owner wallet rather than coordinating multiple members.
+- Updated partner notes to reflect solo-team mode where self-custody identity integration is optional and not required for the current local publish snapshot.

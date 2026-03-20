@@ -7,6 +7,7 @@ This repository tracks non-sensitive registration progress for The Synthesis.
 - Registration initiated
 - Email verification completed
 - Participant registration completed on-chain
+- Solo-team registration NFT minted to the owner wallet used for participation
 
 ## Intentionally Excluded
 
@@ -16,6 +17,8 @@ This repository tracks non-sensitive registration progress for The Synthesis.
 
 ## Next Steps
 
-- Set up the project structure
+- Set up and keep improving the project structure
 - Track builds, prompts, and collaboration log in this repository
-- Push commits to GitHub once remote access/auth is working from this environment
+- Prepare a complete submission package using `docs/submission-playbook.md`
+- Keep all submission secrets and transfer flows out of the repository
+- Confirm the submitted project still points at the same solo owner wallet before publishing

@@ -135,6 +135,32 @@ class ReportSummary(BaseModel):
     partner_signals: dict[str, int] = Field(default_factory=dict)
 
 
+class WorkflowStep(BaseModel):
+    id: str
+    label: str
+    description: str
+    agent_hint: str
+
+
+class ExplanationItem(BaseModel):
+    id: str
+    label: str
+    audience: list[Literal["human", "agent"]]
+    summary: str
+    operational_note: str
+
+
+class ExplanationGuide(BaseModel):
+    product_name: str
+    version: str
+    purpose: str
+    workflows: list[WorkflowStep]
+    ui_elements: list[ExplanationItem]
+    report_elements: list[ExplanationItem]
+    autonomous_usage_notes: list[str]
+    scalability_notes: list[str]
+
+
 class TaxReport(BaseModel):
     summary: ReportSummary
     line_items: list[ReportLineItem]
@@ -209,6 +235,61 @@ class PublishedBuild(BaseModel):
     summary_markdown: str
     included_artifacts: list[str] = Field(default_factory=list)
     included_docs: list[str] = Field(default_factory=list)
+
+
+class IngestionIssue(BaseModel):
+    severity: Literal["info", "warning", "error"]
+    scope: Literal["file", "row"]
+    row_number: int | None = None
+    tx_id: str | None = None
+    message: str
+    recommendation: str
+
+
+class IngestionReadinessSummary(BaseModel):
+    total_rows: int
+    valid_rows: int
+    flagged_rows: int
+    error_count: int
+    warning_count: int
+    readiness: Literal["ready", "needs_review", "blocked"]
+
+
+class IngestionReadinessReport(BaseModel):
+    summary: IngestionReadinessSummary
+    required_columns: list[str]
+    present_columns: list[str]
+    missing_columns: list[str]
+    issues: list[IngestionIssue]
+    agent_notes: list[str]
+
+
+class AutonomyPlanStats(BaseModel):
+    total_transactions: int
+    blocked_rows: int
+    warning_rows: int
+    low_confidence_count: int
+    predicted_fallback_count: int
+
+
+class AutonomyPlanStep(BaseModel):
+    id: str
+    label: str
+    status: Literal["ready", "review", "blocked"]
+    detail: str
+    endpoint: str | None = None
+
+
+class AutonomyPlan(BaseModel):
+    jurisdiction: str
+    tax_year: int
+    autonomy_status: Literal["ready", "review", "blocked"]
+    recommended_action: Literal["repair_csv", "review_predictions", "generate_report"]
+    summary: str
+    rationale: list[str]
+    stats: AutonomyPlanStats
+    next_steps: list[AutonomyPlanStep]
+    handoff_notes: list[str]
 
 
 class GenerateReportRequest(BaseModel):

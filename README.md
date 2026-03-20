@@ -30,6 +30,7 @@ Skynet ingests wallet activity or CSV exports, classifies on-chain activity, and
   - taxable event summary
   - gain/loss totals
   - assumptions and confidence indicators
+  - operator guidance for humans and AI agents
 
 ## Supported Jurisdictions (MVP)
 
@@ -44,6 +45,13 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md).
 ## Demo Script
 
 See [DEMO_SCRIPT.md](./DEMO_SCRIPT.md).
+
+## Guided Operation
+
+- Browser demo includes an operator guide for workflow stages, UI sections, report elements, and autonomous-use notes.
+- API exposes the same contract through `GET /guide` so agents can consume it without scraping interface text.
+- Browser demo includes a CSV readiness inspection step so humans and AI agents can catch malformed or weak transaction files before normalization and tax calculation.
+- Browser demo now includes an autonomy run planner that turns CSV readiness and normalization signals into a concrete next-action handoff for human operators and AI agents.
 
 ## Data Contracts
 
@@ -69,10 +77,14 @@ pip install fastapi uvicorn pydantic
 - This tool is an estimation and compliance assistant, not legal or tax advice.
 - Results should be reviewed by a qualified tax professional before filing.
 - Registration transaction: https://basescan.org/tx/0x3be69aa1e843e835e794ed5a7bb1b46e91793c411e50c33e366cabf36970e02c
+- Submission procedure and checklist are tracked in [`docs/submission-playbook.md`](./docs/submission-playbook.md).
+- Submission metadata must be honest and evidence-backed. Only list skills actually loaded, tools actually used, and URLs actually opened.
+- For this solo-team setup, publish readiness should be checked against the single owner wallet that already completed registration and holds the required participation NFT.
 
 ## Ops Notes
 
 - Do not commit API keys, OTPs, participant IDs, team IDs, or other secrets
+- Do not ask for or store private keys
 - Track build decisions, prompts, and collaboration artifacts in this repository
 - Keep remote `main` in sync as work progresses
 
@@ -83,12 +95,16 @@ pip install fastapi uvicorn pydantic
 - More jurisdictions and yearly rule versioning
 - Evidence-backed citation layer for tax references
 - Agentic workflow for draft filing assistance
+- Source-specific CSV adapters and richer readiness heuristics for exchange export quality scoring
+- Autonomous run orchestration that can branch safely between repair, review, and full analysis for new CSV sources
 
 ## New Build Improvements (2026-03-20)
 
 - Agent-ready manifest endpoint: `GET /agent/manifest`
 - Dynamic supported-jurisdiction discovery: `GET /jurisdictions`
-- Guided workflow cards in UI for human + AI operator alignment
-- Improved visual depth with a 3D-style hero orb and step cards
+- Structured operator guide endpoint: `GET /guide`
+- Guided workflow and operator guide panels in the UI for human + AI operator alignment
+- CSV readiness inspection and autonomy run planner for safer autonomous handoff
+- Improved visual depth with a 3D-style hero orb and guide cards
 - Rule-set in-memory cache for better throughput when reports are repeatedly generated
 - Local publication snapshot flow: `POST /publish` (creates a shareable `published/` bundle from docs + latest artifacts)

@@ -16,6 +16,7 @@
           fallback handling, and demo-ready CSV ingestion.
         </p>
         <div class="hero-orb" aria-hidden="true"></div>
+        <div id="hero-guide" class="hero-guide"></div>
       </section>
 
       <section class="panel guide-panel">
@@ -24,6 +25,34 @@
           <button id="manifest-button" type="button" class="secondary">Copy Agent Manifest</button>
         </div>
         <div class="guide-grid" id="guide-grid"></div>
+      </section>
+
+      <section id="operator-guide" class="panel">
+        <div class="panel-head">
+          <h2>Operator Guide</h2>
+          <span class="badge">Human + Agent</span>
+        </div>
+        <div id="workflow-list" class="guide-grid"></div>
+        <div class="guide-columns">
+          <div>
+            <h3>UI Elements</h3>
+            <div id="ui-guide-list" class="guide-list"></div>
+          </div>
+          <div>
+            <h3>Report Elements</h3>
+            <div id="report-guide-list" class="guide-list"></div>
+          </div>
+        </div>
+        <div class="guide-columns">
+          <div>
+            <h3>Autonomous Use Notes</h3>
+            <ul id="autonomy-notes"></ul>
+          </div>
+          <div>
+            <h3>Scalability Notes</h3>
+            <ul id="scalability-notes"></ul>
+          </div>
+        </div>
       </section>
 
       <section class="panel form-panel">
@@ -44,6 +73,8 @@
             Transactions CSV
             <input type="file" name="file" accept=".csv" required />
           </label>
+          <button id="agent-plan-button" type="button" class="secondary">Plan Agent Run</button>
+          <button id="inspect-button" type="button" class="secondary">Inspect CSV</button>
           <button id="preview-button" type="button" class="secondary">Preview Normalization</button>
           <button type="submit">Run Analysis</button>
           <button id="export-button" type="button" class="secondary hidden">Export Markdown</button>
@@ -52,6 +83,101 @@
           <button id="publish-button" type="button" class="secondary">Publish Build Snapshot</button>
         </form>
         <p id="status" class="status">Upload a CSV to generate a report.</p>
+      </section>
+
+      <section id="autonomy-plan" class="panel hidden">
+        <div class="panel-head">
+          <h2>Autonomy Run Plan</h2>
+          <span id="autonomy-plan-badge" class="badge"></span>
+        </div>
+        <p id="autonomy-plan-summary" class="status"></p>
+        <div class="metrics readiness-metrics">
+          <article>
+            <span>Transactions</span>
+            <strong id="autonomy-total-transactions">0</strong>
+          </article>
+          <article>
+            <span>Warning Rows</span>
+            <strong id="autonomy-warning-rows">0</strong>
+          </article>
+          <article>
+            <span>Low Confidence</span>
+            <strong id="autonomy-low-confidence">0</strong>
+          </article>
+          <article>
+            <span>Fallback Risk</span>
+            <strong id="autonomy-fallback-risk">0</strong>
+          </article>
+        </div>
+        <div class="guide-columns">
+          <div>
+            <h3>Rationale</h3>
+            <ul id="autonomy-rationale"></ul>
+          </div>
+          <div>
+            <h3>Handoff Notes</h3>
+            <ul id="autonomy-handoff-notes"></ul>
+          </div>
+        </div>
+        <div class="guide-columns">
+          <div>
+            <h3>Next Steps</h3>
+            <div id="autonomy-next-steps" class="guide-list"></div>
+          </div>
+          <div>
+            <h3>Recommended Action</h3>
+            <div id="autonomy-recommended-action" class="guide-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="readiness" class="panel hidden">
+        <div class="panel-head">
+          <h2>CSV Readiness</h2>
+          <span id="readiness-badge" class="badge"></span>
+        </div>
+        <div class="metrics readiness-metrics">
+          <article>
+            <span>Total Rows</span>
+            <strong id="readiness-total-rows">0</strong>
+          </article>
+          <article>
+            <span>Valid Rows</span>
+            <strong id="readiness-valid-rows">0</strong>
+          </article>
+          <article>
+            <span>Warnings</span>
+            <strong id="readiness-warning-count">0</strong>
+          </article>
+          <article>
+            <span>Errors</span>
+            <strong id="readiness-error-count">0</strong>
+          </article>
+        </div>
+        <div class="guide-columns">
+          <div>
+            <h3>Columns</h3>
+            <div id="readiness-columns" class="signal-list"></div>
+          </div>
+          <div>
+            <h3>Agent Notes</h3>
+            <ul id="readiness-agent-notes"></ul>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Severity</th>
+                <th>Row</th>
+                <th>Tx</th>
+                <th>Issue</th>
+                <th>Recommendation</th>
+              </tr>
+            </thead>
+            <tbody id="readiness-body"></tbody>
+          </table>
+        </div>
       </section>
 
       <section id="preview" class="panel hidden">
