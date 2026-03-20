@@ -13,6 +13,8 @@ from app.models import (
     ClassifiedTransaction,
     EventRule,
     GenerateReportRequest,
+    MarkdownExport,
+    NormalizedTransaction,
     ReportLineItem,
     ReportSummary,
     RuleSet,
@@ -57,6 +59,7 @@ def parse_transactions_csv(content: bytes) -> list[TransactionRecord]:
                     proceeds_usd=_optional_float(normalized.get("proceeds_usd")),
                     fee_usd=_optional_float(normalized.get("fee_usd")) or 0,
                     counter_asset=normalized.get("counter_asset") or None,
+                    counter_quantity=_optional_float(normalized.get("counter_quantity")),
                     description=normalized.get("description") or None,
                 )
             )
@@ -71,21 +74,31 @@ def parse_transactions_csv(content: bytes) -> list[TransactionRecord]:
 
 def classify_transaction(record: TransactionRecord) -> ClassifiedTransaction:
     haystack = " ".join(filter(None, [record.event_hint, record.description, record.counter_asset])).lower()
+    event_type = "income"
+    confidence = 0.55
+    rationale = "Defaulted to income due to missing stronger signal."
     if "transfer" in haystack or "bridge" in haystack:
-        return ClassifiedTransaction(transaction=record, event_type="transfer", confidence=0.95, rationale="Detected transfer or bridge language.")
-    if "stake" in haystack or "reward" in haystack:
-        return ClassifiedTransaction(transaction=record, event_type="staking", confidence=0.88, rationale="Detected staking or reward language.")
-    if "airdrop" in haystack:
-        return ClassifiedTransaction(transaction=record, event_type="airdrop", confidence=0.9, rationale="Detected airdrop language.")
-    if "mine" in haystack:
-        return ClassifiedTransaction(transaction=record, event_type="mining", confidence=0.9, rationale="Detected mining language.")
-    if "nft" in haystack:
-        return ClassifiedTransaction(transaction=record, event_type="nft_sale", confidence=0.82, rationale="Detected NFT language.")
-    if "salary" in haystack or "income" in haystack or "payment" in haystack:
-        return ClassifiedTransaction(transaction=record, event_type="income", confidence=0.84, rationale="Detected income-like language.")
-    if record.counter_asset:
-        return ClassifiedTransaction(transaction=record, event_type="swap", confidence=0.8, rationale="Counter asset present, treated as asset swap.")
-    return ClassifiedTransaction(transaction=record, event_type="income", confidence=0.55, rationale="Defaulted to income due to missing stronger signal.")
+        event_type, confidence, rationale = "transfer", 0.95, "Detected transfer or bridge language."
+    elif "stake" in haystack or "reward" in haystack:
+        event_type, confidence, rationale = "staking", 0.88, "Detected staking or reward language."
+    elif "airdrop" in haystack:
+        event_type, confidence, rationale = "airdrop", 0.9, "Detected airdrop language."
+    elif "mine" in haystack:
+        event_type, confidence, rationale = "mining", 0.9, "Detected mining language."
+    elif "nft" in haystack:
+        event_type, confidence, rationale = "nft_sale", 0.82, "Detected NFT language."
+    elif "salary" in haystack or "income" in haystack or "payment" in haystack:
+        event_type, confidence, rationale = "income", 0.84, "Detected income-like language."
+    elif record.counter_asset:
+        event_type, confidence, rationale = "swap", 0.8, "Counter asset present, treated as asset swap."
+
+    return ClassifiedTransaction(
+        transaction=record,
+        event_type=event_type,
+        confidence=confidence,
+        rationale=rationale,
+        normalized=_normalize_transaction(record, event_type),
+    )
 
 
 def generate_report(request: GenerateReportRequest) -> TaxReport:
@@ -96,6 +109,7 @@ def generate_report(request: GenerateReportRequest) -> TaxReport:
     assumptions = [
         "FIFO is used for disposal cost basis in the MVP.",
         "USD values are taken from the transaction CSV when provided; otherwise quantity * price_usd is used.",
+        "Swap normalization tracks disposed and acquired sides separately when counter asset data is present.",
         "Fallback-derived results are estimates and should be reviewed by a tax professional.",
     ]
 
@@ -121,6 +135,11 @@ def generate_report(request: GenerateReportRequest) -> TaxReport:
                 explanation=f"{classified.rationale} {explanation}",
                 rule_version=rule_set.version,
                 calculation_method=rule.calculationMethod,
+                disposed_asset=classified.normalized.disposed_asset,
+                disposed_quantity=classified.normalized.disposed_quantity,
+                acquired_asset=classified.normalized.acquired_asset,
+                acquired_quantity=classified.normalized.acquired_quantity,
+                rule_notes=rule.notes,
             )
         )
 
@@ -135,30 +154,83 @@ def generate_report(request: GenerateReportRequest) -> TaxReport:
     return TaxReport(summary=summary, line_items=line_items, assumptions=assumptions)
 
 
+def export_report_markdown(report: TaxReport) -> MarkdownExport:
+    summary = report.summary
+    lines = [
+        "# Skynet Tax Report",
+        "",
+        f"- Jurisdiction: {summary.jurisdiction}",
+        f"- Tax year: {summary.tax_year}",
+        f"- Taxable income: ${summary.total_taxable_income_usd:,.2f}",
+        f"- Capital gains: ${summary.total_capital_gains_usd:,.2f}",
+        f"- Capital losses: ${summary.total_capital_losses_usd:,.2f}",
+        f"- Fallback events: {summary.fallback_count}",
+        "",
+        "## Assumptions",
+        "",
+    ]
+    lines.extend([f"- {assumption}" for assumption in report.assumptions])
+    lines.extend(["", "## Line Items", ""])
+
+    for item in report.line_items:
+        flow = []
+        if item.disposed_asset and item.disposed_quantity:
+            flow.append(f"disposed {item.disposed_quantity:g} {item.disposed_asset}")
+        if item.acquired_asset and item.acquired_quantity:
+            flow.append(f"acquired {item.acquired_quantity:g} {item.acquired_asset}")
+        flow_text = "; ".join(flow) if flow else "no asset flow captured"
+        lines.extend(
+            [
+                f"### {item.tx_id}",
+                f"- Event: {item.event_type}",
+                f"- Treatment: {item.tax_treatment}",
+                f"- Flow: {flow_text}",
+                f"- Taxable amount: ${item.taxable_amount_usd:,.2f}",
+                f"- Cost basis: ${item.cost_basis_usd:,.2f}",
+                f"- Gain/loss: ${item.gain_or_loss_usd:,.2f}",
+                f"- Confidence: {item.confidence:.0%}",
+                f"- Fallback applied: {'yes' if item.fallback_applied else 'no'}",
+                f"- Rule version: {item.rule_version}",
+                f"- Calculation method: {item.calculation_method}",
+                f"- Explanation: {item.explanation}",
+            ]
+        )
+        if item.rule_notes:
+            lines.append(f"- Rule notes: {item.rule_notes}")
+        lines.append("")
+
+    filename = f"skynet-report-{summary.jurisdiction.lower()}-{summary.tax_year}.md"
+    return MarkdownExport(filename=filename, content="\n".join(lines).strip() + "\n")
+
+
 def _apply_rule(
     classified: ClassifiedTransaction,
     rule: EventRule,
     inventory: dict[str, deque[Lot]],
 ) -> tuple[float, float, float, str]:
     record = classified.transaction
+    normalized = classified.normalized
     gross_value = record.gross_value_usd
 
     if classified.event_type in {"income", "staking", "airdrop", "mining"}:
-        unit_cost = gross_value / record.quantity if record.quantity else 0
-        inventory[record.asset].append(Lot(quantity=record.quantity, unit_cost_usd=unit_cost))
+        quantity = normalized.acquired_quantity or record.quantity
+        unit_cost = gross_value / quantity if quantity else 0
+        inventory[normalized.acquired_asset or record.asset].append(Lot(quantity=quantity, unit_cost_usd=unit_cost))
         return gross_value, gross_value, 0.0, "Recorded receipt value as taxable basis and added inventory lot."
 
     if classified.event_type == "transfer":
         return 0.0, 0.0, 0.0, "Treated as non-taxable transfer."
 
     if classified.event_type in {"swap", "nft_sale"}:
-        cost_basis = _consume_fifo(inventory[record.asset], record.quantity)
+        disposed_asset = normalized.disposed_asset or record.asset
+        disposed_quantity = normalized.disposed_quantity or record.quantity
+        cost_basis = _consume_fifo(inventory[disposed_asset], disposed_quantity)
         proceeds = gross_value - record.fee_usd
         gain_or_loss = proceeds - cost_basis
-        if classified.event_type == "swap" and record.counter_asset and record.proceeds_usd is not None and record.quantity > 0:
-            acquired_unit_cost = proceeds / record.quantity
-            inventory[record.counter_asset].append(Lot(quantity=record.quantity, unit_cost_usd=acquired_unit_cost))
-        return proceeds, cost_basis, gain_or_loss, "Disposed inventory using FIFO to estimate gain/loss."
+        if classified.event_type == "swap" and normalized.acquired_asset and normalized.acquired_quantity > 0:
+            acquired_unit_cost = proceeds / normalized.acquired_quantity
+            inventory[normalized.acquired_asset].append(Lot(quantity=normalized.acquired_quantity, unit_cost_usd=acquired_unit_cost))
+        return proceeds, cost_basis, gain_or_loss, "Disposed inventory using FIFO and normalized swap legs for clearer audit output."
 
     return gross_value, 0.0, 0.0, "Unsupported event type fell back to generic taxable treatment."
 
@@ -203,3 +275,39 @@ def _optional_float(value: str | None) -> float | None:
         return None
     return float(value)
 
+
+def _normalize_transaction(record: TransactionRecord, event_type: str) -> NormalizedTransaction:
+    notes: list[str] = []
+    disposed_asset: str | None = None
+    disposed_quantity = 0.0
+    acquired_asset: str | None = None
+    acquired_quantity = 0.0
+
+    if event_type in {"income", "staking", "airdrop", "mining"}:
+        acquired_asset = record.asset
+        acquired_quantity = record.quantity
+    elif event_type == "transfer":
+        disposed_asset = record.asset
+        disposed_quantity = record.quantity
+        notes.append("Transfer leaves the tracked wallet but is modeled as non-taxable in the report.")
+    elif event_type in {"swap", "nft_sale"}:
+        disposed_asset = record.asset
+        disposed_quantity = record.quantity
+        acquired_asset = record.counter_asset
+        if record.counter_quantity is not None:
+            acquired_quantity = record.counter_quantity
+        elif record.counter_asset:
+            notes.append("Counter asset quantity missing; acquisition side is noted but not added to inventory.")
+
+    return NormalizedTransaction(
+        tx_id=record.tx_id,
+        timestamp=record.timestamp,
+        event_type=event_type,
+        disposed_asset=disposed_asset,
+        disposed_quantity=disposed_quantity,
+        acquired_asset=acquired_asset,
+        acquired_quantity=acquired_quantity,
+        cash_value_usd=record.gross_value_usd,
+        fee_usd=record.fee_usd,
+        notes=notes,
+    )

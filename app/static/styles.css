@@ -128,6 +128,10 @@ button {
   align-self: end;
 }
 
+button.secondary {
+  background: linear-gradient(135deg, var(--accent-2) 0%, #b45309 100%);
+}
+
 .file-input input {
   padding-top: 12px;
 }

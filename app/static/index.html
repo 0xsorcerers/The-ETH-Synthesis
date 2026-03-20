@@ -40,6 +40,7 @@
             <input type="file" name="file" accept=".csv" required />
           </label>
           <button type="submit">Run Analysis</button>
+          <button id="export-button" type="button" class="secondary hidden">Export Markdown</button>
         </form>
         <p id="status" class="status">Upload a CSV to generate a report.</p>
       </section>
@@ -85,7 +86,7 @@
             <thead>
               <tr>
                 <th>Tx</th>
-                <th>Asset</th>
+                <th>Flow</th>
                 <th>Event</th>
                 <th>Treatment</th>
                 <th>Taxable</th>

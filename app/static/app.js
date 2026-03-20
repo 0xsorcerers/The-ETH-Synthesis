@@ -5,6 +5,7 @@ const assumptionsPanel = document.getElementById("assumptions");
 const reportPanel = document.getElementById("report");
 const reportBody = document.getElementById("report-body");
 const assumptionList = document.getElementById("assumption-list");
+const exportButton = document.getElementById("export-button");
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -32,11 +33,43 @@ form.addEventListener("submit", async (event) => {
     renderSummary(payload.summary);
     renderAssumptions(payload.assumptions);
     renderLineItems(payload.line_items);
+    exportButton.classList.remove("hidden");
     statusNode.textContent = "Report ready. Review line items and fallback flags below.";
   } catch (error) {
     summaryPanel.classList.add("hidden");
     assumptionsPanel.classList.add("hidden");
     reportPanel.classList.add("hidden");
+    exportButton.classList.add("hidden");
+    statusNode.textContent = error.message;
+  }
+});
+
+exportButton.addEventListener("click", async () => {
+  statusNode.textContent = "Preparing Markdown export...";
+  const formData = new FormData(form);
+
+  try {
+    const response = await fetch("/reports/export-markdown-from-csv", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(message || "Markdown export failed.");
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get("Content-Disposition") || "";
+    const filename = disposition.match(/filename="(.+)"/)?.[1] || "skynet-report.md";
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+    statusNode.textContent = "Markdown report exported.";
+  } catch (error) {
     statusNode.textContent = error.message;
   }
 });
@@ -61,7 +94,7 @@ function renderLineItems(items) {
       (item) => `
         <tr>
           <td>${escapeHtml(item.tx_id)}</td>
-          <td>${escapeHtml(item.asset)}</td>
+          <td>${renderFlow(item)}</td>
           <td>${escapeHtml(item.event_type)}</td>
           <td>${escapeHtml(item.tax_treatment)}</td>
           <td>${money.format(item.taxable_amount_usd)}</td>
@@ -76,6 +109,20 @@ function renderLineItems(items) {
     )
     .join("");
   reportPanel.classList.remove("hidden");
+}
+
+function renderFlow(item) {
+  const parts = [];
+  if (item.disposed_asset && item.disposed_quantity) {
+    parts.push(`Out: ${escapeHtml(item.disposed_quantity)} ${escapeHtml(item.disposed_asset)}`);
+  }
+  if (item.acquired_asset && item.acquired_quantity) {
+    parts.push(`In: ${escapeHtml(item.acquired_quantity)} ${escapeHtml(item.acquired_asset)}`);
+  }
+  if (parts.length === 0) {
+    return escapeHtml(item.asset);
+  }
+  return parts.join("<br />");
 }
 
 function escapeHtml(value) {

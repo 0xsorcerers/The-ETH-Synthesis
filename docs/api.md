@@ -48,6 +48,7 @@ Expected CSV columns:
 - `proceeds_usd`
 - `fee_usd`
 - `counter_asset`
+- `counter_quantity`
 - `description`
 
 ## Output
@@ -58,6 +59,14 @@ The generated report includes:
 - line-by-line explainability data
 - fallback indicators when no jurisdiction-specific rule exists
 - assumptions used by the MVP engine
+- normalized asset flow details for disposals and acquisitions
+
+## Markdown Export
+
+- `POST /reports/export-markdown`
+- `POST /reports/export-markdown-from-csv`
+
+These return a judge-friendly Markdown report attachment.
 
 ## Collaboration Trail
 
