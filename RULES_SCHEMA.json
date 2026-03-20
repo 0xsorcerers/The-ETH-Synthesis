@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Skynet Tax Rule Set",
+  "type": "object",
+  "required": [
+    "jurisdiction",
+    "taxYear",
+    "version",
+    "fallbackPolicy",
+    "eventRules"
+  ],
+  "properties": {
+    "jurisdiction": {
+      "type": "string",
+      "description": "Country or region code, e.g., US, UK, NG"
+    },
+    "taxYear": {
+      "type": "integer",
+      "minimum": 2000
+    },
+    "version": {
+      "type": "string"
+    },
+    "fallbackPolicy": {
+      "type": "object",
+      "required": ["mode", "description"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["traditional_tax_law", "manual_review_required"]
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "eventRules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["eventType", "taxTreatment", "calculationMethod", "confidence"],
+        "properties": {
+          "eventType": {
+            "type": "string",
+            "enum": ["income", "transfer", "swap", "staking", "nft_sale", "airdrop", "mining"]
+          },
+          "taxTreatment": {
+            "type": "string",
+            "enum": ["taxable_income", "capital_gains", "non_taxable", "mixed"]
+          },
+          "calculationMethod": {
+            "type": "string",
+            "description": "Human-readable method id, e.g., fifo_capital_gain"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

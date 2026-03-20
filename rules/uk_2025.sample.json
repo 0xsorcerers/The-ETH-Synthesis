@@ -1,0 +1,23 @@
+{
+  "jurisdiction": "UK",
+  "taxYear": 2025,
+  "version": "2025.1",
+  "fallbackPolicy": {
+    "mode": "traditional_tax_law",
+    "description": "Apply UK-like income/capital treatment assumptions where explicit crypto rules are unavailable in MVP."
+  },
+  "eventRules": [
+    {
+      "eventType": "income",
+      "taxTreatment": "taxable_income",
+      "calculationMethod": "fair_market_value_at_receipt",
+      "confidence": 0.82
+    },
+    {
+      "eventType": "swap",
+      "taxTreatment": "capital_gains",
+      "calculationMethod": "fifo_capital_gain",
+      "confidence": 0.8
+    }
+  ]
+}
