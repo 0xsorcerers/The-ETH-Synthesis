@@ -6,7 +6,18 @@ from typing import Literal
 from pydantic import BaseModel, Field, computed_field
 
 
-EventType = Literal["income", "transfer", "swap", "staking", "nft_sale", "airdrop", "mining"]
+EventType = Literal[
+    "income",
+    "transfer",
+    "swap",
+    "staking",
+    "unstaking",
+    "lp_deposit",
+    "lp_withdrawal",
+    "nft_sale",
+    "airdrop",
+    "mining",
+]
 TaxTreatment = Literal["taxable_income", "capital_gains", "non_taxable", "mixed"]
 
 
@@ -127,6 +138,14 @@ class PartnerIntegration(BaseModel):
     category: str
     description: str
     docs_url: str
+
+
+class NormalizationPreviewItem(BaseModel):
+    tx_id: str
+    event_type: EventType
+    confidence: float
+    rationale: str
+    normalized: NormalizedTransaction
 
 
 class GenerateReportRequest(BaseModel):

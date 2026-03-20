@@ -39,10 +39,31 @@
             Transactions CSV
             <input type="file" name="file" accept=".csv" required />
           </label>
+          <button id="preview-button" type="button" class="secondary">Preview Normalization</button>
           <button type="submit">Run Analysis</button>
           <button id="export-button" type="button" class="secondary hidden">Export Markdown</button>
         </form>
         <p id="status" class="status">Upload a CSV to generate a report.</p>
+      </section>
+
+      <section id="preview" class="panel hidden">
+        <div class="panel-head">
+          <h2>Normalization Preview</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tx</th>
+                <th>Detected Event</th>
+                <th>Confidence</th>
+                <th>Normalized Flow</th>
+                <th>Rationale</th>
+              </tr>
+            </thead>
+            <tbody id="preview-body"></tbody>
+          </table>
+        </div>
       </section>
 
       <section id="summary" class="panel hidden">

@@ -80,11 +80,14 @@ def test_generate_report_from_csv_upload():
     body = response.json()
     assert body["summary"]["jurisdiction"] == "NG"
     assert body["summary"]["fallback_count"] >= 1
-    assert body["summary"]["partner_signals"]["Base"] == 4
+    assert body["summary"]["partner_signals"]["Base"] == 6
     assert body["summary"]["partner_signals"]["Celo"] == 1
-    assert body["summary"]["partner_signals"]["MetaMask"] == 5
-    assert body["summary"]["partner_signals"]["Uniswap"] == 2
-    assert len(body["line_items"]) == 5
+    assert body["summary"]["partner_signals"]["MetaMask"] == 7
+    assert body["summary"]["partner_signals"]["Uniswap"] == 4
+    assert len(body["line_items"]) == 7
+    assert any(item["event_type"] == "lp_deposit" for item in body["line_items"])
+    assert any(item["event_type"] == "lp_withdrawal" for item in body["line_items"])
+    assert any(item["event_type"] == "unstaking" for item in body["line_items"])
 
 
 def test_export_markdown_from_json():
@@ -121,3 +124,36 @@ def test_partner_catalog_endpoint():
     body = response.json()
     assert any(item["id"] == "base" and item["status"] == "active" for item in body)
     assert any(item["id"] == "self" and item["status"] == "planned" for item in body)
+
+
+def test_normalization_preview_endpoint():
+    response = client.post(
+        "/normalize/preview",
+        json={
+            "jurisdiction": "US",
+            "tax_year": 2025,
+            "transactions": [
+                {
+                    "tx_id": "tx-lp",
+                    "timestamp": "2025-03-20T16:00:00Z",
+                    "asset": "ETH",
+                    "quantity": 0.3,
+                    "network": "Base",
+                    "wallet_provider": "MetaMask",
+                    "source_app": "Uniswap LP",
+                    "event_hint": "lp deposit",
+                    "proceeds_usd": 950,
+                    "fee_usd": 5,
+                    "counter_asset": "UNI-V2-ETH-USDC",
+                    "counter_quantity": 1.2,
+                    "description": "add liquidity to pool",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body[0]["event_type"] == "lp_deposit"
+    assert body[0]["normalized"]["disposed_asset"] == "ETH"
+    assert body[0]["normalized"]["acquired_asset"] == "UNI-V2-ETH-USDC"

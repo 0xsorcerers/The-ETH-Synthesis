@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.models import GenerateReportRequest
-from app.services import export_report_markdown, generate_report, list_partner_integrations, parse_transactions_csv
+from app.services import export_report_markdown, generate_report, list_partner_integrations, parse_transactions_csv, preview_normalization
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
@@ -39,6 +39,11 @@ def create_report(request: GenerateReportRequest):
     return generate_report(request)
 
 
+@app.post("/normalize/preview")
+def normalize_preview(request: GenerateReportRequest):
+    return preview_normalization(request)
+
+
 @app.post("/reports/export-markdown")
 def create_report_markdown(request: GenerateReportRequest) -> PlainTextResponse:
     export = export_report_markdown(generate_report(request))
@@ -54,6 +59,18 @@ async def create_report_from_csv(
 ):
     transactions = parse_transactions_csv(await file.read())
     return generate_report(
+        GenerateReportRequest(jurisdiction=jurisdiction.upper(), tax_year=tax_year, transactions=transactions)
+    )
+
+
+@app.post("/normalize/preview-from-csv")
+async def normalize_preview_from_csv(
+    jurisdiction: str = Form(...),
+    tax_year: int = Form(...),
+    file: UploadFile = File(...),
+):
+    transactions = parse_transactions_csv(await file.read())
+    return preview_normalization(
         GenerateReportRequest(jurisdiction=jurisdiction.upper(), tax_year=tax_year, transactions=transactions)
     )
 

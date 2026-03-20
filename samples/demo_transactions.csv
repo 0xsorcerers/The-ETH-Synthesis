@@ -2,5 +2,7 @@ tx_id,timestamp,asset,quantity,tx_hash,network,wallet_provider,source_app,event_
 tx-001,2025-01-10T09:00:00Z,ETH,1.5,0xaaa001,Base,MetaMask,payroll app,income,2400,,0,,,salary payment in ETH
 tx-002,2025-02-18T12:00:00Z,ETH,0.2,0xaaa002,Base,MetaMask,staking portal,staking,2650,,0,,,staking reward payout
 tx-003,2025-03-02T15:30:00Z,ETH,0.5,0xaaa003,Base,MetaMask,Uniswap,swap,,1600,25,SOL,8,swap ETH into SOL
-tx-004,2025-03-20T16:00:00Z,CELO,10,0xaaa004,Celo,MetaMask,wallet transfer,transfer,0.85,,1,,,transfer to cold wallet
+tx-004,2025-03-20T16:00:00Z,ETH,0.3,0xaaa004,Base,MetaMask,Uniswap LP,lp deposit,,950,5,UNI-V2-ETH-USDC,1.2,add liquidity to ETH/USDC pool
 tx-005,2025-04-08T11:45:00Z,ETH,0.4,0xaaa005,Base,MetaMask,Uniswap,swap,,1200,10,BTC,0.018,rebalance into BTC
+tx-006,2025-05-15T08:30:00Z,UNI-V2-ETH-USDC,0.6,0xaaa006,Base,MetaMask,Uniswap LP,lp withdrawal,,720,4,ETH,0.22,remove liquidity from ETH/USDC pool
+tx-007,2025-06-01T10:15:00Z,CELO,10,0xaaa007,Celo,MetaMask,staking portal,unstaking,0.85,,1,,,unstaking CELO principal

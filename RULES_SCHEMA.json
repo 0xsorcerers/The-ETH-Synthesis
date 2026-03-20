@@ -42,7 +42,7 @@
         "properties": {
           "eventType": {
             "type": "string",
-            "enum": ["income", "transfer", "swap", "staking", "nft_sale", "airdrop", "mining"]
+            "enum": ["income", "transfer", "swap", "staking", "unstaking", "lp_deposit", "lp_withdrawal", "nft_sale", "airdrop", "mining"]
           },
           "taxTreatment": {
             "type": "string",

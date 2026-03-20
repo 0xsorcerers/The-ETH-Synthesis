@@ -19,6 +19,27 @@
       "taxTreatment": "capital_gains",
       "calculationMethod": "fifo_capital_gain",
       "confidence": 0.85
+    },
+    {
+      "eventType": "unstaking",
+      "taxTreatment": "non_taxable",
+      "calculationMethod": "principal_return_non_taxable",
+      "confidence": 0.78,
+      "notes": "Principal unstaking is modeled as a non-taxable return for MVP unless accompanied by explicit reward proceeds."
+    },
+    {
+      "eventType": "lp_deposit",
+      "taxTreatment": "non_taxable",
+      "calculationMethod": "liquidity_position_entry",
+      "confidence": 0.7,
+      "notes": "LP deposit is modeled as a non-taxable position entry in the MVP."
+    },
+    {
+      "eventType": "lp_withdrawal",
+      "taxTreatment": "capital_gains",
+      "calculationMethod": "fifo_lp_exit",
+      "confidence": 0.72,
+      "notes": "LP withdrawal is modeled as a disposal event for MVP gain/loss estimation."
     }
   ]
 }

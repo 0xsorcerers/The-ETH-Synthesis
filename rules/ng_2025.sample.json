@@ -19,6 +19,25 @@
       "taxTreatment": "capital_gains",
       "calculationMethod": "fifo_capital_gain",
       "confidence": 0.62
+    },
+    {
+      "eventType": "unstaking",
+      "taxTreatment": "non_taxable",
+      "calculationMethod": "principal_return_non_taxable",
+      "confidence": 0.58,
+      "notes": "Modeled conservatively as principal return absent clearer crypto-specific guidance."
+    },
+    {
+      "eventType": "lp_deposit",
+      "taxTreatment": "non_taxable",
+      "calculationMethod": "liquidity_position_entry",
+      "confidence": 0.52
+    },
+    {
+      "eventType": "lp_withdrawal",
+      "taxTreatment": "capital_gains",
+      "calculationMethod": "fifo_lp_exit",
+      "confidence": 0.56
     }
   ]
 }

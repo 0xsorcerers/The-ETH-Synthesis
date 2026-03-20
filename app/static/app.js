@@ -7,6 +7,9 @@ const reportBody = document.getElementById("report-body");
 const assumptionList = document.getElementById("assumption-list");
 const exportButton = document.getElementById("export-button");
 const partnerSignals = document.getElementById("partner-signals");
+const previewButton = document.getElementById("preview-button");
+const previewPanel = document.getElementById("preview");
+const previewBody = document.getElementById("preview-body");
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -41,6 +44,42 @@ form.addEventListener("submit", async (event) => {
     assumptionsPanel.classList.add("hidden");
     reportPanel.classList.add("hidden");
     exportButton.classList.add("hidden");
+    statusNode.textContent = error.message;
+  }
+});
+
+previewButton.addEventListener("click", async () => {
+  statusNode.textContent = "Previewing normalization...";
+  const formData = new FormData(form);
+
+  try {
+    const response = await fetch("/normalize/preview-from-csv", {
+      method: "POST",
+      body: formData,
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Normalization preview failed.");
+    }
+
+    previewBody.innerHTML = payload
+      .map(
+        (item) => `
+          <tr>
+            <td>${escapeHtml(item.tx_id)}</td>
+            <td>${escapeHtml(item.event_type)}</td>
+            <td>${Math.round(item.confidence * 100)}%</td>
+            <td>${renderNormalizedFlow(item.normalized)}</td>
+            <td>${escapeHtml(item.rationale)}</td>
+          </tr>
+        `,
+      )
+      .join("");
+    previewPanel.classList.remove("hidden");
+    statusNode.textContent = "Normalization preview ready.";
+  } catch (error) {
+    previewPanel.classList.add("hidden");
     statusNode.textContent = error.message;
   }
 });
@@ -123,6 +162,20 @@ function renderFlow(item) {
   }
   if (parts.length === 0) {
     return escapeHtml(item.asset);
+  }
+  return parts.join("<br />");
+}
+
+function renderNormalizedFlow(normalized) {
+  const parts = [];
+  if (normalized.disposed_asset && normalized.disposed_quantity) {
+    parts.push(`Out: ${escapeHtml(normalized.disposed_quantity)} ${escapeHtml(normalized.disposed_asset)}`);
+  }
+  if (normalized.acquired_asset && normalized.acquired_quantity) {
+    parts.push(`In: ${escapeHtml(normalized.acquired_quantity)} ${escapeHtml(normalized.acquired_asset)}`);
+  }
+  if (parts.length === 0) {
+    return "No material asset movement";
   }
   return parts.join("<br />");
 }

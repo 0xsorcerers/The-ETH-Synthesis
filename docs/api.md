@@ -33,6 +33,10 @@ Accepts JSON with:
 - `tax_year`
 - `transactions`
 
+### `POST /normalize/preview`
+
+Accepts the same JSON payload as `/reports/generate` and returns the detected event type plus normalized asset flow before tax calculations are applied.
+
 ### `POST /reports/generate-from-csv`
 
 Multipart form fields:
@@ -40,6 +44,10 @@ Multipart form fields:
 - `jurisdiction`
 - `tax_year`
 - `file`
+
+### `POST /normalize/preview-from-csv`
+
+Accepts the same multipart form fields as `/reports/generate-from-csv` and returns the normalization preview.
 
 Expected CSV columns:
 
@@ -69,6 +77,7 @@ The generated report includes:
 - assumptions used by the MVP engine
 - normalized asset flow details for disposals and acquisitions
 - partner-signal counts for Base, Celo, MetaMask, and Uniswap metadata
+- protocol-aware handling for LP deposit, LP withdrawal, and unstaking events in the MVP
 
 ## Markdown Export
 

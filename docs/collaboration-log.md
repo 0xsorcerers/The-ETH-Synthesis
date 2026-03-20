@@ -12,3 +12,6 @@
   - explainable line-item report output
 - Added a browser-based demo surface served by FastAPI for quick judging walkthroughs.
 - Added tests and sample data to keep iteration grounded in a working baseline.
+- Added partner-aware transaction metadata for Base, Celo, MetaMask, and Uniswap.
+- Added LP deposit, LP withdrawal, and unstaking normalization/report handling.
+- Added a normalization preview flow so raw transaction interpretation is inspectable before reporting.

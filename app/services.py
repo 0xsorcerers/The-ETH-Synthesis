@@ -15,6 +15,7 @@ from app.models import (
     GenerateReportRequest,
     MarkdownExport,
     NormalizedTransaction,
+    NormalizationPreviewItem,
     PartnerIntegration,
     ReportLineItem,
     ReportSummary,
@@ -128,6 +129,12 @@ def classify_transaction(record: TransactionRecord) -> ClassifiedTransaction:
     rationale = "Defaulted to income due to missing stronger signal."
     if "transfer" in haystack or "bridge" in haystack:
         event_type, confidence, rationale = "transfer", 0.95, "Detected transfer or bridge language."
+    elif "unstake" in haystack or "unstaking" in haystack:
+        event_type, confidence, rationale = "unstaking", 0.86, "Detected unstaking or principal return language."
+    elif "lp withdraw" in haystack or "remove liquidity" in haystack or "liquidity withdraw" in haystack:
+        event_type, confidence, rationale = "lp_withdrawal", 0.88, "Detected LP withdrawal or liquidity removal language."
+    elif "lp deposit" in haystack or "add liquidity" in haystack or "provide liquidity" in haystack:
+        event_type, confidence, rationale = "lp_deposit", 0.88, "Detected LP deposit or liquidity provisioning language."
     elif "stake" in haystack or "reward" in haystack:
         event_type, confidence, rationale = "staking", 0.88, "Detected staking or reward language."
     elif "airdrop" in haystack:
@@ -161,6 +168,7 @@ def generate_report(request: GenerateReportRequest) -> TaxReport:
         "FIFO is used for disposal cost basis in the MVP.",
         "USD values are taken from the transaction CSV when provided; otherwise quantity * price_usd is used.",
         "Swap normalization tracks disposed and acquired sides separately when counter asset data is present.",
+        "Liquidity add/remove flows are approximated using single-sided asset records in the MVP unless both legs are supplied.",
         "Fallback-derived results are estimates and should be reviewed by a tax professional.",
     ]
 
@@ -204,6 +212,22 @@ def generate_report(request: GenerateReportRequest) -> TaxReport:
         partner_signals=_collect_partner_signals(request.transactions),
     )
     return TaxReport(summary=summary, line_items=line_items, assumptions=assumptions)
+
+
+def preview_normalization(request: GenerateReportRequest) -> list[NormalizationPreviewItem]:
+    preview: list[NormalizationPreviewItem] = []
+    for transaction in sorted(request.transactions, key=lambda row: row.timestamp):
+        classified = classify_transaction(transaction)
+        preview.append(
+            NormalizationPreviewItem(
+                tx_id=transaction.tx_id,
+                event_type=classified.event_type,
+                confidence=classified.confidence,
+                rationale=classified.rationale,
+                normalized=classified.normalized,
+            )
+        )
+    return preview
 
 
 def export_report_markdown(report: TaxReport) -> MarkdownExport:
@@ -279,18 +303,29 @@ def _apply_rule(
         inventory[normalized.acquired_asset or record.asset].append(Lot(quantity=quantity, unit_cost_usd=unit_cost))
         return gross_value, gross_value, 0.0, "Recorded receipt value as taxable basis and added inventory lot."
 
-    if classified.event_type == "transfer":
+    if classified.event_type in {"transfer", "unstaking", "lp_deposit"}:
+        if classified.event_type == "unstaking" and normalized.acquired_asset:
+            inventory[normalized.acquired_asset].append(Lot(quantity=normalized.acquired_quantity, unit_cost_usd=0))
+            return 0.0, 0.0, 0.0, "Modeled unstaking as non-taxable principal return and added the returned asset to inventory with placeholder basis."
+        if classified.event_type == "lp_deposit":
+            acquired_asset = normalized.acquired_asset or "LP_POSITION"
+            acquired_quantity = normalized.acquired_quantity or record.quantity
+            unit_cost = gross_value / acquired_quantity if acquired_quantity else 0
+            inventory[acquired_asset].append(Lot(quantity=acquired_quantity, unit_cost_usd=unit_cost))
+            return 0.0, gross_value, 0.0, "Modeled LP deposit as non-taxable position entry and added the LP position token to inventory."
         return 0.0, 0.0, 0.0, "Treated as non-taxable transfer."
 
-    if classified.event_type in {"swap", "nft_sale"}:
+    if classified.event_type in {"swap", "nft_sale", "lp_withdrawal"}:
         disposed_asset = normalized.disposed_asset or record.asset
         disposed_quantity = normalized.disposed_quantity or record.quantity
         cost_basis = _consume_fifo(inventory[disposed_asset], disposed_quantity)
         proceeds = gross_value - record.fee_usd
         gain_or_loss = proceeds - cost_basis
-        if classified.event_type == "swap" and normalized.acquired_asset and normalized.acquired_quantity > 0:
+        if classified.event_type in {"swap", "lp_withdrawal"} and normalized.acquired_asset and normalized.acquired_quantity > 0:
             acquired_unit_cost = proceeds / normalized.acquired_quantity
             inventory[normalized.acquired_asset].append(Lot(quantity=normalized.acquired_quantity, unit_cost_usd=acquired_unit_cost))
+        if classified.event_type == "lp_withdrawal":
+            return proceeds, cost_basis, gain_or_loss, "Modeled LP withdrawal as a position exit using FIFO for the disposed side and normalized return legs when present."
         return proceeds, cost_basis, gain_or_loss, "Disposed inventory using FIFO and normalized swap legs for clearer audit output."
 
     return gross_value, 0.0, 0.0, "Unsupported event type fell back to generic taxable treatment."
@@ -318,7 +353,13 @@ def _consume_fifo(lots: deque[Lot], quantity_needed: float) -> float:
 def _fallback_rule(event_type: str, fallback_mode: str) -> EventRule:
     if fallback_mode == "manual_review_required":
         raise HTTPException(status_code=422, detail=f"Manual review required for unsupported event type: {event_type}")
-    treatment: TaxTreatment = "non_taxable" if event_type == "transfer" else "capital_gains" if event_type in {"swap", "nft_sale"} else "taxable_income"
+    treatment: TaxTreatment = (
+        "non_taxable"
+        if event_type in {"transfer", "unstaking", "lp_deposit"}
+        else "capital_gains"
+        if event_type in {"swap", "nft_sale", "lp_withdrawal"}
+        else "taxable_income"
+    )
     method = "fifo_capital_gain" if treatment == "capital_gains" else "fair_market_value_at_receipt"
     if treatment == "non_taxable":
         method = "non_taxable_transfer"
@@ -351,6 +392,22 @@ def _normalize_transaction(record: TransactionRecord, event_type: str) -> Normal
         disposed_asset = record.asset
         disposed_quantity = record.quantity
         notes.append("Transfer leaves the tracked wallet but is modeled as non-taxable in the report.")
+    elif event_type == "unstaking":
+        acquired_asset = record.asset
+        acquired_quantity = record.quantity
+        notes.append("Unstaking is modeled as principal returning to the wallet.")
+    elif event_type == "lp_deposit":
+        disposed_asset = record.asset
+        disposed_quantity = record.quantity
+        acquired_asset = record.counter_asset or "LP_POSITION"
+        acquired_quantity = record.counter_quantity or record.quantity
+        notes.append("LP deposit creates or increases a liquidity position.")
+    elif event_type == "lp_withdrawal":
+        disposed_asset = record.asset
+        disposed_quantity = record.quantity
+        acquired_asset = record.counter_asset
+        acquired_quantity = record.counter_quantity or 0.0
+        notes.append("LP withdrawal exits or reduces a liquidity position.")
     elif event_type in {"swap", "nft_sale"}:
         disposed_asset = record.asset
         disposed_quantity = record.quantity

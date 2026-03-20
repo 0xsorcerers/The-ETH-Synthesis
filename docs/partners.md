@@ -27,6 +27,7 @@ Docs: https://docs.metamask.io/
 
 - Supported as a protocol signal in imported transaction data.
 - Transactions tagged with Uniswap metadata are classified more confidently as swaps.
+- LP deposit and LP withdrawal flows are also recognized in the MVP normalization layer.
 
 Docs: https://docs.uniswap.org/
 
