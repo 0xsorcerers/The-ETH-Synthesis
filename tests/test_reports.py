@@ -190,6 +190,7 @@ def test_save_artifact_bundle(tmp_path, monkeypatch):
     assert tmp_path.joinpath(body["bundle_id"]).exists()
     assert tmp_path.joinpath(body["bundle_id"], "report.json").exists()
     assert tmp_path.joinpath(body["bundle_id"], "normalization-preview.json").exists()
+    assert tmp_path.joinpath(body["bundle_id"], "collaboration-log.md").exists()
 
 
 def test_list_artifact_bundles(tmp_path, monkeypatch):
@@ -208,3 +209,4 @@ def test_list_artifact_bundles(tmp_path, monkeypatch):
     body = response.json()
     assert len(body) == 1
     assert body[0]["bundle_id"] == "us-2025-20260320T000000Z"
+    assert body[0]["collaboration_log"].endswith("collaboration-log.md")

@@ -145,6 +145,7 @@ class ArtifactBundle(BaseModel):
     report_json: str
     report_markdown: str
     normalization_preview: str
+    collaboration_log: str
 
 
 class ArtifactBundleSummary(BaseModel):
@@ -153,6 +154,7 @@ class ArtifactBundleSummary(BaseModel):
     report_json: str
     report_markdown: str
     normalization_preview: str
+    collaboration_log: str
 
 
 class PartnerIntegration(BaseModel):

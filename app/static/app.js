@@ -146,6 +146,8 @@ bundleButton.addEventListener("click", async () => {
       <code>${escapeHtml(payload.report_markdown)}</code>
       <div>Normalization Preview</div>
       <code>${escapeHtml(payload.normalization_preview)}</code>
+      <div>Collaboration Log Snapshot</div>
+      <code>${escapeHtml(payload.collaboration_log)}</code>
     `;
     bundlePanel.classList.remove("hidden");
     await loadArtifactHistory();
@@ -279,6 +281,8 @@ async function loadArtifactHistory() {
           <code>${escapeHtml(item.bundle_id)}</code>
           <div>Directory</div>
           <code>${escapeHtml(item.directory)}</code>
+          <div>Collaboration Log</div>
+          <code>${escapeHtml(item.collaboration_log)}</code>
         `,
       )
       .join("");

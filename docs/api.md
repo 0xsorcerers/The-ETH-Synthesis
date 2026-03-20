@@ -102,6 +102,7 @@ These persist a run bundle under `artifacts/` containing:
 - `report.json`
 - `skynet-report-<jurisdiction>-<taxYear>.md`
 - `normalization-preview.json`
+- `collaboration-log.md`
 
 ## Collaboration Trail
 

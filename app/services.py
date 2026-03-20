@@ -32,6 +32,7 @@ from app.models import (
 
 RULES_DIR = Path(__file__).resolve().parent.parent / "rules"
 ARTIFACTS_DIR = Path(__file__).resolve().parent.parent / "artifacts"
+COLLABORATION_LOG_PATH = Path(__file__).resolve().parent.parent / "docs" / "collaboration-log.md"
 PARTNER_INTEGRATIONS = [
     PartnerIntegration(
         id="base",
@@ -309,10 +310,15 @@ def save_artifact_bundle(request: GenerateReportRequest) -> ArtifactBundle:
     report_json_path = bundle_dir / "report.json"
     report_markdown_path = bundle_dir / markdown_export.filename
     preview_path = bundle_dir / "normalization-preview.json"
+    collaboration_log_path = bundle_dir / "collaboration-log.md"
 
     report_json_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
     report_markdown_path.write_text(markdown_export.content, encoding="utf-8")
     preview_path.write_text(json.dumps([item.model_dump(mode="json") for item in preview], indent=2), encoding="utf-8")
+    if COLLABORATION_LOG_PATH.exists():
+        collaboration_log_path.write_text(COLLABORATION_LOG_PATH.read_text(encoding="utf-8"), encoding="utf-8")
+    else:
+        collaboration_log_path.write_text("# Collaboration Log\n\nNo collaboration log was available.\n", encoding="utf-8")
 
     return ArtifactBundle(
         bundle_id=bundle_id,
@@ -320,6 +326,7 @@ def save_artifact_bundle(request: GenerateReportRequest) -> ArtifactBundle:
         report_json=str(report_json_path),
         report_markdown=str(report_markdown_path),
         normalization_preview=str(preview_path),
+        collaboration_log=str(collaboration_log_path),
     )
 
 
@@ -340,6 +347,7 @@ def list_artifact_bundles() -> list[ArtifactBundleSummary]:
                 report_json=str(report_json_path),
                 report_markdown=str(report_markdown_path),
                 normalization_preview=str(preview_path),
+                collaboration_log=str(bundle_dir / "collaboration-log.md"),
             )
         )
     return bundles
