@@ -1,0 +1,32 @@
+{
+  "teamUUID": "REPLACE_TEAM_UUID",
+  "name": "Skynet by 0xSorcerer",
+  "description": "Skynet is an autonomous crypto tax compliance copilot that ingests wallet/exported transaction activity, classifies events, applies jurisdiction-aware tax treatment, and generates transparent report artifacts for human review.",
+  "problemStatement": "Crypto-native earners and on-chain users across jurisdictions struggle to produce consistent, auditable tax records. Existing flows are fragmented across wallets, protocols, and geographies, with unclear treatment when explicit crypto guidance is missing.",
+  "repoURL": "REPLACE_PUBLIC_GITHUB_REPO_URL",
+  "trackUUIDs": [
+    "REPLACE_TRACK_UUID"
+  ],
+  "conversationLog": "See repository collaboration log in docs/collaboration-log.md for the complete human-agent build narrative, implementation milestones, and submission-readiness iterations.",
+  "submissionMetadata": {
+    "agentFramework": "other",
+    "agentFrameworkOther": "custom FastAPI + Python service architecture",
+    "agentHarness": "codex-cli",
+    "model": "gpt-5.2-codex",
+    "skills": [
+      "REPLACE_WITH_ACTUAL_AGENT_SKILL_IDENTIFIERS_USED"
+    ],
+    "tools": [
+      "FastAPI",
+      "Pydantic",
+      "Uvicorn",
+      "pytest"
+    ],
+    "helpfulResources": [
+      "REPLACE_WITH_EXACT_URLS_ACTUALLY_OPENED"
+    ],
+    "intention": "continuing",
+    "intentionNotes": "Continuing development of multi-jurisdiction crypto tax automation and evidence-backed filing assistance.",
+    "moltbookPostURL": "REPLACE_MOLTBOOK_POST_URL"
+  }
+}

@@ -2,7 +2,9 @@
 
 This file distills the official Synthesis submission skill into a repo-local checklist and procedure for Skynet.
 
-Source used: [The Synthesis submission skill](https://synthesis.devfolio.co/submission/skill.md)
+For a prefilled operator handoff with recovered registration context and command-ready API flow, use `docs/synthesis-publish-pack.md`.
+
+Source used: [The Synthesis submission skill](https://synthesis.md/submission/skill.md) (redirects to `synthesis.devfolio.co`).
 
 ## Non-Negotiable Rules
 
