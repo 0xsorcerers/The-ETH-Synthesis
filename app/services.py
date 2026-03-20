@@ -17,6 +17,7 @@ from app.models import (
     ClassifiedTransaction,
     EventRule,
     GenerateReportRequest,
+    HtmlExport,
     MarkdownExport,
     NormalizedTransaction,
     NormalizationPreviewItem,
@@ -185,7 +186,7 @@ def generate_report(request: GenerateReportRequest) -> TaxReport:
         if fallback_applied:
             rule = _fallback_rule(classified.event_type, rule_set.fallbackPolicy.mode)
 
-        taxable_amount, cost_basis, gain_or_loss, explanation = _apply_rule(classified, rule, inventory)
+        taxable_amount, cost_basis, gain_or_loss, explanation, formula_inputs, formula_outputs = _apply_rule(classified, rule, inventory)
         line_items.append(
             ReportLineItem(
                 tx_id=transaction.tx_id,
@@ -206,6 +207,13 @@ def generate_report(request: GenerateReportRequest) -> TaxReport:
                 acquired_quantity=classified.normalized.acquired_quantity,
                 rule_notes=rule.notes,
                 citations=rule.citations,
+                source_tx_hash=transaction.tx_hash,
+                source_network=transaction.network,
+                source_app=transaction.source_app,
+                source_wallet_provider=transaction.wallet_provider,
+                rule_id=f"{rule_set.jurisdiction}:{rule_set.taxYear}:{rule.eventType}:{rule.calculationMethod}",
+                formula_inputs=formula_inputs,
+                formula_outputs=formula_outputs,
             )
         )
 
@@ -283,10 +291,15 @@ def export_report_markdown(report: TaxReport) -> MarkdownExport:
                 f"- Confidence: {item.confidence:.0%}",
                 f"- Fallback applied: {'yes' if item.fallback_applied else 'no'}",
                 f"- Rule version: {item.rule_version}",
+                f"- Rule id: {item.rule_id}",
                 f"- Calculation method: {item.calculation_method}",
                 f"- Explanation: {item.explanation}",
             ]
         )
+        if item.formula_inputs:
+            lines.append(f"- Formula inputs: {json.dumps(item.formula_inputs, sort_keys=True)}")
+        if item.formula_outputs:
+            lines.append(f"- Formula outputs: {json.dumps(item.formula_outputs, sort_keys=True)}")
         if item.rule_notes:
             lines.append(f"- Rule notes: {item.rule_notes}")
         if item.citations:
@@ -298,10 +311,87 @@ def export_report_markdown(report: TaxReport) -> MarkdownExport:
     return MarkdownExport(filename=filename, content="\n".join(lines).strip() + "\n")
 
 
+def export_report_html(report: TaxReport) -> HtmlExport:
+    rows = []
+    for item in report.line_items:
+        citations = "".join(
+            f'<li><a href="{_escape_html(citation.url)}" target="_blank" rel="noreferrer">{_escape_html(citation.authority)}: {_escape_html(citation.title)}</a></li>'
+            for citation in item.citations
+        ) or "<li>No citations</li>"
+        rows.append(
+            f"""
+            <tr>
+              <td>{_escape_html(item.tx_id)}</td>
+              <td>{_escape_html(item.event_type)}</td>
+              <td>{_escape_html(item.tax_treatment)}</td>
+              <td>{item.taxable_amount_usd:.2f}</td>
+              <td>{item.gain_or_loss_usd:.2f}</td>
+              <td>{_escape_html(item.rule_id)}</td>
+              <td><pre>{_escape_html(json.dumps(item.formula_inputs, indent=2, sort_keys=True))}</pre></td>
+              <td><pre>{_escape_html(json.dumps(item.formula_outputs, indent=2, sort_keys=True))}</pre></td>
+              <td><ul>{citations}</ul></td>
+            </tr>
+            """
+        )
+
+    summary = report.summary
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skynet Report {summary.jurisdiction} {summary.tax_year}</title>
+  <style>
+    body {{ font-family: Arial, sans-serif; margin: 32px; color: #111827; }}
+    h1, h2 {{ margin-bottom: 8px; }}
+    table {{ width: 100%; border-collapse: collapse; margin-top: 16px; }}
+    th, td {{ border: 1px solid #d1d5db; padding: 10px; vertical-align: top; text-align: left; }}
+    th {{ background: #f3f4f6; }}
+    pre {{ margin: 0; white-space: pre-wrap; }}
+    ul {{ margin: 0; padding-left: 18px; }}
+  </style>
+</head>
+<body>
+  <h1>Skynet Tax Report</h1>
+  <p>{summary.jurisdiction} {summary.tax_year}</p>
+  <h2>Summary</h2>
+  <ul>
+    <li>Taxable income: ${summary.total_taxable_income_usd:,.2f}</li>
+    <li>Capital gains: ${summary.total_capital_gains_usd:,.2f}</li>
+    <li>Capital losses: ${summary.total_capital_losses_usd:,.2f}</li>
+    <li>Fallback events: {summary.fallback_count}</li>
+  </ul>
+  <h2>Line Items</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Tx</th>
+        <th>Event</th>
+        <th>Treatment</th>
+        <th>Taxable</th>
+        <th>Gain/Loss</th>
+        <th>Rule ID</th>
+        <th>Formula Inputs</th>
+        <th>Formula Outputs</th>
+        <th>Citations</th>
+      </tr>
+    </thead>
+    <tbody>
+      {''.join(rows)}
+    </tbody>
+  </table>
+</body>
+</html>
+"""
+    filename = f"skynet-report-{summary.jurisdiction.lower()}-{summary.tax_year}.html"
+    return HtmlExport(filename=filename, content=html)
+
+
 def save_artifact_bundle(request: GenerateReportRequest) -> ArtifactBundle:
     report = generate_report(request)
     preview = preview_normalization(request)
     markdown_export = export_report_markdown(report)
+    html_export = export_report_html(report)
 
     bundle_id = _bundle_id(request.jurisdiction, request.tax_year)
     bundle_dir = ARTIFACTS_DIR / bundle_id
@@ -309,11 +399,13 @@ def save_artifact_bundle(request: GenerateReportRequest) -> ArtifactBundle:
 
     report_json_path = bundle_dir / "report.json"
     report_markdown_path = bundle_dir / markdown_export.filename
+    report_html_path = bundle_dir / html_export.filename
     preview_path = bundle_dir / "normalization-preview.json"
     collaboration_log_path = bundle_dir / "collaboration-log.md"
 
     report_json_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
     report_markdown_path.write_text(markdown_export.content, encoding="utf-8")
+    report_html_path.write_text(html_export.content, encoding="utf-8")
     preview_path.write_text(json.dumps([item.model_dump(mode="json") for item in preview], indent=2), encoding="utf-8")
     if COLLABORATION_LOG_PATH.exists():
         collaboration_log_path.write_text(COLLABORATION_LOG_PATH.read_text(encoding="utf-8"), encoding="utf-8")
@@ -325,6 +417,7 @@ def save_artifact_bundle(request: GenerateReportRequest) -> ArtifactBundle:
         directory=str(bundle_dir),
         report_json=str(report_json_path),
         report_markdown=str(report_markdown_path),
+        report_html=str(report_html_path),
         normalization_preview=str(preview_path),
         collaboration_log=str(collaboration_log_path),
     )
@@ -340,12 +433,15 @@ def list_artifact_bundles() -> list[ArtifactBundleSummary]:
         preview_path = bundle_dir / "normalization-preview.json"
         markdown_candidates = sorted(bundle_dir.glob("skynet-report-*.md"))
         report_markdown_path = markdown_candidates[0] if markdown_candidates else bundle_dir / "report.md"
+        html_candidates = sorted(bundle_dir.glob("skynet-report-*.html"))
+        report_html_path = html_candidates[0] if html_candidates else bundle_dir / "report.html"
         bundles.append(
             ArtifactBundleSummary(
                 bundle_id=bundle_dir.name,
                 directory=str(bundle_dir),
                 report_json=str(report_json_path),
                 report_markdown=str(report_markdown_path),
+                report_html=str(report_html_path),
                 normalization_preview=str(preview_path),
                 collaboration_log=str(bundle_dir / "collaboration-log.md"),
             )
@@ -366,19 +462,47 @@ def _apply_rule(
         quantity = normalized.acquired_quantity or record.quantity
         unit_cost = gross_value / quantity if quantity else 0
         inventory[normalized.acquired_asset or record.asset].append(Lot(quantity=quantity, unit_cost_usd=unit_cost))
-        return gross_value, gross_value, 0.0, "Recorded receipt value as taxable basis and added inventory lot."
+        return (
+            gross_value,
+            gross_value,
+            0.0,
+            "Recorded receipt value as taxable basis and added inventory lot.",
+            {"gross_value_usd": gross_value, "quantity": quantity, "unit_cost_usd": unit_cost},
+            {"taxable_amount_usd": gross_value, "cost_basis_usd": gross_value, "gain_or_loss_usd": 0.0},
+        )
 
     if classified.event_type in {"transfer", "unstaking", "lp_deposit"}:
         if classified.event_type == "unstaking" and normalized.acquired_asset:
             inventory[normalized.acquired_asset].append(Lot(quantity=normalized.acquired_quantity, unit_cost_usd=0))
-            return 0.0, 0.0, 0.0, "Modeled unstaking as non-taxable principal return and added the returned asset to inventory with placeholder basis."
+            return (
+                0.0,
+                0.0,
+                0.0,
+                "Modeled unstaking as non-taxable principal return and added the returned asset to inventory with placeholder basis.",
+                {"returned_quantity": normalized.acquired_quantity},
+                {"taxable_amount_usd": 0.0, "cost_basis_usd": 0.0, "gain_or_loss_usd": 0.0},
+            )
         if classified.event_type == "lp_deposit":
             acquired_asset = normalized.acquired_asset or "LP_POSITION"
             acquired_quantity = normalized.acquired_quantity or record.quantity
             unit_cost = gross_value / acquired_quantity if acquired_quantity else 0
             inventory[acquired_asset].append(Lot(quantity=acquired_quantity, unit_cost_usd=unit_cost))
-            return 0.0, gross_value, 0.0, "Modeled LP deposit as non-taxable position entry and added the LP position token to inventory."
-        return 0.0, 0.0, 0.0, "Treated as non-taxable transfer."
+            return (
+                0.0,
+                gross_value,
+                0.0,
+                "Modeled LP deposit as non-taxable position entry and added the LP position token to inventory.",
+                {"gross_value_usd": gross_value, "acquired_quantity": acquired_quantity, "unit_cost_usd": unit_cost},
+                {"taxable_amount_usd": 0.0, "cost_basis_usd": gross_value, "gain_or_loss_usd": 0.0},
+            )
+        return (
+            0.0,
+            0.0,
+            0.0,
+            "Treated as non-taxable transfer.",
+            {"disposed_quantity": normalized.disposed_quantity},
+            {"taxable_amount_usd": 0.0, "cost_basis_usd": 0.0, "gain_or_loss_usd": 0.0},
+        )
 
     if classified.event_type in {"swap", "nft_sale", "lp_withdrawal"}:
         disposed_asset = normalized.disposed_asset or record.asset
@@ -390,10 +514,31 @@ def _apply_rule(
             acquired_unit_cost = proceeds / normalized.acquired_quantity
             inventory[normalized.acquired_asset].append(Lot(quantity=normalized.acquired_quantity, unit_cost_usd=acquired_unit_cost))
         if classified.event_type == "lp_withdrawal":
-            return proceeds, cost_basis, gain_or_loss, "Modeled LP withdrawal as a position exit using FIFO for the disposed side and normalized return legs when present."
-        return proceeds, cost_basis, gain_or_loss, "Disposed inventory using FIFO and normalized swap legs for clearer audit output."
+            return (
+                proceeds,
+                cost_basis,
+                gain_or_loss,
+                "Modeled LP withdrawal as a position exit using FIFO for the disposed side and normalized return legs when present.",
+                {"proceeds_usd": proceeds, "cost_basis_usd": cost_basis, "disposed_quantity": disposed_quantity},
+                {"taxable_amount_usd": proceeds, "cost_basis_usd": cost_basis, "gain_or_loss_usd": gain_or_loss},
+            )
+        return (
+            proceeds,
+            cost_basis,
+            gain_or_loss,
+            "Disposed inventory using FIFO and normalized swap legs for clearer audit output.",
+            {"proceeds_usd": proceeds, "cost_basis_usd": cost_basis, "disposed_quantity": disposed_quantity},
+            {"taxable_amount_usd": proceeds, "cost_basis_usd": cost_basis, "gain_or_loss_usd": gain_or_loss},
+        )
 
-    return gross_value, 0.0, 0.0, "Unsupported event type fell back to generic taxable treatment."
+    return (
+        gross_value,
+        0.0,
+        0.0,
+        "Unsupported event type fell back to generic taxable treatment.",
+        {"gross_value_usd": gross_value},
+        {"taxable_amount_usd": gross_value, "cost_basis_usd": 0.0, "gain_or_loss_usd": 0.0},
+    )
 
 
 def _consume_fifo(lots: deque[Lot], quantity_needed: float) -> float:
@@ -527,3 +672,13 @@ def _collect_partner_signals(transactions: list[TransactionRecord]) -> dict[str,
             bump("Uniswap")
 
     return counts
+
+
+def _escape_html(value: str) -> str:
+    return (
+        value.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&#39;")
+    )

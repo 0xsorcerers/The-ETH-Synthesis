@@ -116,6 +116,13 @@ class ReportLineItem(BaseModel):
     acquired_quantity: float = 0
     rule_notes: str | None = None
     citations: list[RuleCitation] = Field(default_factory=list)
+    source_tx_hash: str | None = None
+    source_network: str | None = None
+    source_app: str | None = None
+    source_wallet_provider: str | None = None
+    rule_id: str
+    formula_inputs: dict[str, float | str | None] = Field(default_factory=dict)
+    formula_outputs: dict[str, float | str | None] = Field(default_factory=dict)
 
 
 class ReportSummary(BaseModel):
@@ -139,11 +146,17 @@ class MarkdownExport(BaseModel):
     content: str
 
 
+class HtmlExport(BaseModel):
+    filename: str
+    content: str
+
+
 class ArtifactBundle(BaseModel):
     bundle_id: str
     directory: str
     report_json: str
     report_markdown: str
+    report_html: str
     normalization_preview: str
     collaboration_log: str
 
@@ -153,6 +166,7 @@ class ArtifactBundleSummary(BaseModel):
     directory: str
     report_json: str
     report_markdown: str
+    report_html: str
     normalization_preview: str
     collaboration_log: str
 

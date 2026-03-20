@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.models import GenerateReportRequest
-from app.services import export_report_markdown, generate_report, list_artifact_bundles, list_partner_integrations, parse_transactions_csv, preview_normalization, save_artifact_bundle
+from app.services import export_report_html, export_report_markdown, generate_report, list_artifact_bundles, list_partner_integrations, parse_transactions_csv, preview_normalization, save_artifact_bundle
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
@@ -56,6 +56,13 @@ def create_report_markdown(request: GenerateReportRequest) -> PlainTextResponse:
     return PlainTextResponse(export.content, media_type="text/markdown", headers=headers)
 
 
+@app.post("/reports/export-html")
+def create_report_html(request: GenerateReportRequest) -> PlainTextResponse:
+    export = export_report_html(generate_report(request))
+    headers = {"Content-Disposition": f'attachment; filename="{export.filename}"'}
+    return PlainTextResponse(export.content, media_type="text/html", headers=headers)
+
+
 @app.post("/artifacts/save")
 def save_artifacts(request: GenerateReportRequest):
     return save_artifact_bundle(request)
@@ -97,6 +104,20 @@ async def create_report_markdown_from_csv(
     )
     headers = {"Content-Disposition": f'attachment; filename="{export.filename}"'}
     return PlainTextResponse(export.content, media_type="text/markdown", headers=headers)
+
+
+@app.post("/reports/export-html-from-csv")
+async def create_report_html_from_csv(
+    jurisdiction: str = Form(...),
+    tax_year: int = Form(...),
+    file: UploadFile = File(...),
+) -> PlainTextResponse:
+    transactions = parse_transactions_csv(await file.read())
+    export = export_report_html(
+        generate_report(GenerateReportRequest(jurisdiction=jurisdiction.upper(), tax_year=tax_year, transactions=transactions))
+    )
+    headers = {"Content-Disposition": f'attachment; filename="{export.filename}"'}
+    return PlainTextResponse(export.content, media_type="text/html", headers=headers)
 
 
 @app.post("/artifacts/save-from-csv")

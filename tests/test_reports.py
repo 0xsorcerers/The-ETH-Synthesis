@@ -119,6 +119,33 @@ def test_export_markdown_from_json():
     assert "IRS: Digital Assets" in response.text
 
 
+def test_export_html_from_json():
+    response = client.post(
+        "/reports/export-html",
+        json={
+            "jurisdiction": "US",
+            "tax_year": 2025,
+            "transactions": [
+                {
+                    "tx_id": "tx-001",
+                    "timestamp": "2025-01-10T09:00:00Z",
+                    "asset": "ETH",
+                    "quantity": 1,
+                    "event_hint": "income",
+                    "price_usd": 2000,
+                    "fee_usd": 0,
+                    "description": "income payment",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+    assert "Rule ID" in response.text
+    assert "taxable_amount_usd" in response.text
+
+
 def test_partner_catalog_endpoint():
     response = client.get("/partners")
 
@@ -189,6 +216,7 @@ def test_save_artifact_bundle(tmp_path, monkeypatch):
     body = response.json()
     assert tmp_path.joinpath(body["bundle_id"]).exists()
     assert tmp_path.joinpath(body["bundle_id"], "report.json").exists()
+    assert any(path.suffix == ".html" for path in tmp_path.joinpath(body["bundle_id"]).iterdir())
     assert tmp_path.joinpath(body["bundle_id"], "normalization-preview.json").exists()
     assert tmp_path.joinpath(body["bundle_id"], "collaboration-log.md").exists()
 
@@ -209,4 +237,5 @@ def test_list_artifact_bundles(tmp_path, monkeypatch):
     body = response.json()
     assert len(body) == 1
     assert body[0]["bundle_id"] == "us-2025-20260320T000000Z"
+    assert body[0]["report_html"].endswith(".html")
     assert body[0]["collaboration_log"].endswith("collaboration-log.md")

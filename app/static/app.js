@@ -11,6 +11,7 @@ const previewButton = document.getElementById("preview-button");
 const previewPanel = document.getElementById("preview");
 const previewBody = document.getElementById("preview-body");
 const bundleButton = document.getElementById("bundle-button");
+const htmlButton = document.getElementById("html-button");
 const bundlePanel = document.getElementById("bundle");
 const bundleDetails = document.getElementById("bundle-details");
 const refreshHistoryButton = document.getElementById("refresh-history-button");
@@ -43,6 +44,7 @@ form.addEventListener("submit", async (event) => {
     renderAssumptions(payload.assumptions);
     renderLineItems(payload.line_items);
     exportButton.classList.remove("hidden");
+    htmlButton.classList.remove("hidden");
     bundleButton.classList.remove("hidden");
     statusNode.textContent = "Report ready. Review line items and fallback flags below.";
   } catch (error) {
@@ -50,6 +52,7 @@ form.addEventListener("submit", async (event) => {
     assumptionsPanel.classList.add("hidden");
     reportPanel.classList.add("hidden");
     exportButton.classList.add("hidden");
+    htmlButton.classList.add("hidden");
     bundleButton.classList.add("hidden");
     statusNode.textContent = error.message;
   }
@@ -121,6 +124,36 @@ exportButton.addEventListener("click", async () => {
   }
 });
 
+htmlButton.addEventListener("click", async () => {
+  statusNode.textContent = "Preparing HTML export...";
+  const formData = new FormData(form);
+
+  try {
+    const response = await fetch("/reports/export-html-from-csv", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(message || "HTML export failed.");
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get("Content-Disposition") || "";
+    const filename = disposition.match(/filename="(.+)"/)?.[1] || "skynet-report.html";
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+    statusNode.textContent = "HTML report exported.";
+  } catch (error) {
+    statusNode.textContent = error.message;
+  }
+});
+
 bundleButton.addEventListener("click", async () => {
   statusNode.textContent = "Saving artifact bundle...";
   const formData = new FormData(form);
@@ -144,6 +177,8 @@ bundleButton.addEventListener("click", async () => {
       <code>${escapeHtml(payload.report_json)}</code>
       <div>Report Markdown</div>
       <code>${escapeHtml(payload.report_markdown)}</code>
+      <div>Report HTML</div>
+      <code>${escapeHtml(payload.report_html)}</code>
       <div>Normalization Preview</div>
       <code>${escapeHtml(payload.normalization_preview)}</code>
       <div>Collaboration Log Snapshot</div>
@@ -281,6 +316,8 @@ async function loadArtifactHistory() {
           <code>${escapeHtml(item.bundle_id)}</code>
           <div>Directory</div>
           <code>${escapeHtml(item.directory)}</code>
+          <div>Report HTML</div>
+          <code>${escapeHtml(item.report_html)}</code>
           <div>Collaboration Log</div>
           <code>${escapeHtml(item.collaboration_log)}</code>
         `,

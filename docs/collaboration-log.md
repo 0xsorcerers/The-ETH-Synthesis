@@ -19,3 +19,4 @@
 - Added artifact history browsing so saved bundles are visible from the demo UI and API.
 - Added rule citation support so reports can carry official-source evidence alongside applied logic.
 - Added collaboration-log snapshots into saved bundles so each evidence package carries process history too.
+- Added structured formula audit details and HTML report export for richer reporting artifacts.
