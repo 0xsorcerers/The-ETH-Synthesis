@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.models import GenerateReportRequest
-from app.services import export_report_markdown, generate_report, list_partner_integrations, parse_transactions_csv, preview_normalization, save_artifact_bundle
+from app.services import export_report_markdown, generate_report, list_artifact_bundles, list_partner_integrations, parse_transactions_csv, preview_normalization, save_artifact_bundle
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
@@ -32,6 +32,11 @@ def health() -> dict[str, str]:
 @app.get("/partners")
 def partners():
     return list_partner_integrations()
+
+
+@app.get("/artifacts")
+def artifacts():
+    return list_artifact_bundles()
 
 
 @app.post("/reports/generate")

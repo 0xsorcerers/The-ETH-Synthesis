@@ -139,6 +139,14 @@ class ArtifactBundle(BaseModel):
     normalization_preview: str
 
 
+class ArtifactBundleSummary(BaseModel):
+    bundle_id: str
+    directory: str
+    report_json: str
+    report_markdown: str
+    normalization_preview: str
+
+
 class PartnerIntegration(BaseModel):
     id: str
     name: str

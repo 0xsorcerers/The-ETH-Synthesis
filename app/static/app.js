@@ -13,6 +13,8 @@ const previewBody = document.getElementById("preview-body");
 const bundleButton = document.getElementById("bundle-button");
 const bundlePanel = document.getElementById("bundle");
 const bundleDetails = document.getElementById("bundle-details");
+const refreshHistoryButton = document.getElementById("refresh-history-button");
+const historyList = document.getElementById("history-list");
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -146,11 +148,16 @@ bundleButton.addEventListener("click", async () => {
       <code>${escapeHtml(payload.normalization_preview)}</code>
     `;
     bundlePanel.classList.remove("hidden");
+    await loadArtifactHistory();
     statusNode.textContent = "Artifact bundle saved.";
   } catch (error) {
     bundlePanel.classList.add("hidden");
     statusNode.textContent = error.message;
   }
+});
+
+refreshHistoryButton.addEventListener("click", async () => {
+  await loadArtifactHistory();
 });
 
 function renderSummary(summary) {
@@ -238,3 +245,33 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 }
+
+async function loadArtifactHistory() {
+  try {
+    const response = await fetch("/artifacts");
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Failed to load artifact history.");
+    }
+
+    if (payload.length === 0) {
+      historyList.innerHTML = '<span class="status">No saved bundles yet.</span>';
+      return;
+    }
+
+    historyList.innerHTML = payload
+      .map(
+        (item) => `
+          <div>Bundle ID</div>
+          <code>${escapeHtml(item.bundle_id)}</code>
+          <div>Directory</div>
+          <code>${escapeHtml(item.directory)}</code>
+        `,
+      )
+      .join("");
+  } catch (error) {
+    historyList.innerHTML = `<span class="status">${escapeHtml(error.message)}</span>`;
+  }
+}
+
+loadArtifactHistory();

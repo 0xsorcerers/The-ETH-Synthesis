@@ -188,3 +188,21 @@ def test_save_artifact_bundle(tmp_path, monkeypatch):
     assert tmp_path.joinpath(body["bundle_id"]).exists()
     assert tmp_path.joinpath(body["bundle_id"], "report.json").exists()
     assert tmp_path.joinpath(body["bundle_id"], "normalization-preview.json").exists()
+
+
+def test_list_artifact_bundles(tmp_path, monkeypatch):
+    from app import services
+
+    monkeypatch.setattr(services, "ARTIFACTS_DIR", tmp_path)
+    bundle_dir = tmp_path / "us-2025-20260320T000000Z"
+    bundle_dir.mkdir(parents=True)
+    bundle_dir.joinpath("report.json").write_text("{}", encoding="utf-8")
+    bundle_dir.joinpath("normalization-preview.json").write_text("[]", encoding="utf-8")
+    bundle_dir.joinpath("skynet-report-us-2025.md").write_text("# report", encoding="utf-8")
+
+    response = client.get("/artifacts")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body) == 1
+    assert body[0]["bundle_id"] == "us-2025-20260320T000000Z"

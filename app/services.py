@@ -13,6 +13,7 @@ from fastapi import HTTPException
 
 from app.models import (
     ArtifactBundle,
+    ArtifactBundleSummary,
     ClassifiedTransaction,
     EventRule,
     GenerateReportRequest,
@@ -316,6 +317,28 @@ def save_artifact_bundle(request: GenerateReportRequest) -> ArtifactBundle:
         report_markdown=str(report_markdown_path),
         normalization_preview=str(preview_path),
     )
+
+
+def list_artifact_bundles() -> list[ArtifactBundleSummary]:
+    if not ARTIFACTS_DIR.exists():
+        return []
+
+    bundles: list[ArtifactBundleSummary] = []
+    for bundle_dir in sorted([path for path in ARTIFACTS_DIR.iterdir() if path.is_dir()], reverse=True):
+        report_json_path = bundle_dir / "report.json"
+        preview_path = bundle_dir / "normalization-preview.json"
+        markdown_candidates = sorted(bundle_dir.glob("skynet-report-*.md"))
+        report_markdown_path = markdown_candidates[0] if markdown_candidates else bundle_dir / "report.md"
+        bundles.append(
+            ArtifactBundleSummary(
+                bundle_id=bundle_dir.name,
+                directory=str(bundle_dir),
+                report_json=str(report_json_path),
+                report_markdown=str(report_markdown_path),
+                normalization_preview=str(preview_path),
+            )
+        )
+    return bundles
 
 
 def _apply_rule(

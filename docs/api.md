@@ -25,6 +25,10 @@ Serves the browser-based demo interface for CSV upload and report review.
 
 Returns the current partner integration catalog and status.
 
+### `GET /artifacts`
+
+Returns the saved artifact bundle history from the local `artifacts/` directory.
+
 ### `POST /reports/generate`
 
 Accepts JSON with:
