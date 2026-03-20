@@ -1,0 +1,24 @@
+{
+  "jurisdiction": "NG",
+  "taxYear": 2025,
+  "version": "2025.1",
+  "fallbackPolicy": {
+    "mode": "traditional_tax_law",
+    "description": "Use traditional tax logic when crypto-specific statutory guidance is incomplete or unavailable."
+  },
+  "eventRules": [
+    {
+      "eventType": "income",
+      "taxTreatment": "taxable_income",
+      "calculationMethod": "fair_market_value_at_receipt",
+      "confidence": 0.65,
+      "notes": "Confidence reduced due to potential policy ambiguity in MVP assumptions."
+    },
+    {
+      "eventType": "swap",
+      "taxTreatment": "capital_gains",
+      "calculationMethod": "fifo_capital_gain",
+      "confidence": 0.62
+    }
+  ]
+}
