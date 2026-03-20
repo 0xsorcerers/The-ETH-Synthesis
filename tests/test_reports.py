@@ -26,6 +26,9 @@ def test_generate_report_from_json():
                     "timestamp": "2025-01-10T09:00:00Z",
                     "asset": "ETH",
                     "quantity": 1.5,
+                    "network": "Base",
+                    "wallet_provider": "MetaMask",
+                    "source_app": "Payroll App",
                     "event_hint": "income",
                     "price_usd": 2400,
                     "fee_usd": 0,
@@ -36,6 +39,9 @@ def test_generate_report_from_json():
                     "timestamp": "2025-03-02T15:30:00Z",
                     "asset": "ETH",
                     "quantity": 0.5,
+                    "network": "Base",
+                    "wallet_provider": "MetaMask",
+                    "source_app": "Uniswap",
                     "event_hint": "swap",
                     "proceeds_usd": 1600,
                     "fee_usd": 25,
@@ -54,6 +60,9 @@ def test_generate_report_from_json():
     assert body["summary"]["total_capital_gains_usd"] == 375.0
     assert body["line_items"][1]["event_type"] == "swap"
     assert body["line_items"][1]["fallback_applied"] is False
+    assert body["summary"]["partner_signals"]["Base"] == 2
+    assert body["summary"]["partner_signals"]["MetaMask"] == 2
+    assert body["summary"]["partner_signals"]["Uniswap"] == 1
     assert body["line_items"][1]["disposed_asset"] == "ETH"
     assert body["line_items"][1]["acquired_asset"] == "SOL"
     assert body["line_items"][1]["acquired_quantity"] == 8
@@ -70,7 +79,11 @@ def test_generate_report_from_csv_upload():
     assert response.status_code == 200
     body = response.json()
     assert body["summary"]["jurisdiction"] == "NG"
-    assert body["summary"]["fallback_count"] >= 2
+    assert body["summary"]["fallback_count"] >= 1
+    assert body["summary"]["partner_signals"]["Base"] == 4
+    assert body["summary"]["partner_signals"]["Celo"] == 1
+    assert body["summary"]["partner_signals"]["MetaMask"] == 5
+    assert body["summary"]["partner_signals"]["Uniswap"] == 2
     assert len(body["line_items"]) == 5
 
 
@@ -99,3 +112,12 @@ def test_export_markdown_from_json():
     assert response.headers["content-type"].startswith("text/markdown")
     assert "Skynet Tax Report" in response.text
     assert "Taxable income: $2,000.00" in response.text
+
+
+def test_partner_catalog_endpoint():
+    response = client.get("/partners")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert any(item["id"] == "base" and item["status"] == "active" for item in body)
+    assert any(item["id"] == "self" and item["status"] == "planned" for item in body)

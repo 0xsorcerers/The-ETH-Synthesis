@@ -21,6 +21,10 @@ Simple health check.
 
 Serves the browser-based demo interface for CSV upload and report review.
 
+### `GET /partners`
+
+Returns the current partner integration catalog and status.
+
 ### `POST /reports/generate`
 
 Accepts JSON with:
@@ -43,6 +47,10 @@ Expected CSV columns:
 - `timestamp`
 - `asset`
 - `quantity`
+- `tx_hash`
+- `network`
+- `wallet_provider`
+- `source_app`
 - `event_hint`
 - `price_usd`
 - `proceeds_usd`
@@ -60,6 +68,7 @@ The generated report includes:
 - fallback indicators when no jurisdiction-specific rule exists
 - assumptions used by the MVP engine
 - normalized asset flow details for disposals and acquisitions
+- partner-signal counts for Base, Celo, MetaMask, and Uniswap metadata
 
 ## Markdown Export
 

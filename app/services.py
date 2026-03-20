@@ -15,6 +15,7 @@ from app.models import (
     GenerateReportRequest,
     MarkdownExport,
     NormalizedTransaction,
+    PartnerIntegration,
     ReportLineItem,
     ReportSummary,
     RuleSet,
@@ -25,6 +26,48 @@ from app.models import (
 
 
 RULES_DIR = Path(__file__).resolve().parent.parent / "rules"
+PARTNER_INTEGRATIONS = [
+    PartnerIntegration(
+        id="base",
+        name="Base",
+        status="active",
+        category="network",
+        description="EVM network metadata and chain-aware transaction reporting for Base activity.",
+        docs_url="https://docs.base.org/",
+    ),
+    PartnerIntegration(
+        id="celo",
+        name="Celo",
+        status="active",
+        category="network",
+        description="Additional supported chain metadata and routing for Celo transactions.",
+        docs_url="https://docs.celo.org/",
+    ),
+    PartnerIntegration(
+        id="metamask",
+        name="MetaMask",
+        status="active",
+        category="wallet",
+        description="Wallet-origin metadata to label imported transactions and prep future wallet connection flows.",
+        docs_url="https://docs.metamask.io/",
+    ),
+    PartnerIntegration(
+        id="uniswap",
+        name="Uniswap",
+        status="active",
+        category="protocol",
+        description="Protocol-aware swap detection when transaction metadata indicates Uniswap execution.",
+        docs_url="https://docs.uniswap.org/",
+    ),
+    PartnerIntegration(
+        id="self",
+        name="Self",
+        status="planned",
+        category="identity",
+        description="Identity verification path for compliance-sensitive workflows and gated exports.",
+        docs_url="https://docs.self.xyz/frontend-integration/qrcode-sdk",
+    ),
+]
 
 
 @dataclass
@@ -54,6 +97,10 @@ def parse_transactions_csv(content: bytes) -> list[TransactionRecord]:
                     timestamp=normalized["timestamp"],
                     asset=normalized["asset"],
                     quantity=float(normalized["quantity"]),
+                    tx_hash=normalized.get("tx_hash") or None,
+                    network=normalized.get("network") or None,
+                    wallet_provider=normalized.get("wallet_provider") or None,
+                    source_app=normalized.get("source_app") or None,
                     event_hint=normalized.get("event_hint") or None,
                     price_usd=_optional_float(normalized.get("price_usd")),
                     proceeds_usd=_optional_float(normalized.get("proceeds_usd")),
@@ -73,7 +120,9 @@ def parse_transactions_csv(content: bytes) -> list[TransactionRecord]:
 
 
 def classify_transaction(record: TransactionRecord) -> ClassifiedTransaction:
-    haystack = " ".join(filter(None, [record.event_hint, record.description, record.counter_asset])).lower()
+    haystack = " ".join(
+        filter(None, [record.event_hint, record.description, record.counter_asset, record.source_app, record.wallet_provider, record.network])
+    ).lower()
     event_type = "income"
     confidence = 0.55
     rationale = "Defaulted to income due to missing stronger signal."
@@ -89,6 +138,8 @@ def classify_transaction(record: TransactionRecord) -> ClassifiedTransaction:
         event_type, confidence, rationale = "nft_sale", 0.82, "Detected NFT language."
     elif "salary" in haystack or "income" in haystack or "payment" in haystack:
         event_type, confidence, rationale = "income", 0.84, "Detected income-like language."
+    elif "uniswap" in haystack:
+        event_type, confidence, rationale = "swap", 0.92, "Detected Uniswap source metadata, treated as a protocol swap."
     elif record.counter_asset:
         event_type, confidence, rationale = "swap", 0.8, "Counter asset present, treated as asset swap."
 
@@ -150,6 +201,7 @@ def generate_report(request: GenerateReportRequest) -> TaxReport:
         total_capital_gains_usd=round(sum(max(item.gain_or_loss_usd, 0) for item in line_items if item.tax_treatment in {"capital_gains", "mixed"}), 2),
         total_capital_losses_usd=round(sum(min(item.gain_or_loss_usd, 0) for item in line_items if item.tax_treatment in {"capital_gains", "mixed"}), 2),
         fallback_count=sum(1 for item in line_items if item.fallback_applied),
+        partner_signals=_collect_partner_signals(request.transactions),
     )
     return TaxReport(summary=summary, line_items=line_items, assumptions=assumptions)
 
@@ -166,9 +218,18 @@ def export_report_markdown(report: TaxReport) -> MarkdownExport:
         f"- Capital losses: ${summary.total_capital_losses_usd:,.2f}",
         f"- Fallback events: {summary.fallback_count}",
         "",
-        "## Assumptions",
+        "## Partner Signals",
         "",
     ]
+    if summary.partner_signals:
+        lines.extend([f"- {name}: {count}" for name, count in sorted(summary.partner_signals.items())])
+    else:
+        lines.append("- No partner-specific metadata detected in this report.")
+    lines.extend([
+        "",
+        "## Assumptions",
+        "",
+    ])
     lines.extend([f"- {assumption}" for assumption in report.assumptions])
     lines.extend(["", "## Line Items", ""])
 
@@ -311,3 +372,30 @@ def _normalize_transaction(record: TransactionRecord, event_type: str) -> Normal
         fee_usd=record.fee_usd,
         notes=notes,
     )
+
+
+def list_partner_integrations() -> list[PartnerIntegration]:
+    return PARTNER_INTEGRATIONS
+
+
+def _collect_partner_signals(transactions: list[TransactionRecord]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+
+    def bump(name: str) -> None:
+        counts[name] = counts.get(name, 0) + 1
+
+    for record in transactions:
+        network = (record.network or "").strip().lower()
+        wallet = (record.wallet_provider or "").strip().lower()
+        source = (record.source_app or "").strip().lower()
+
+        if network == "base":
+            bump("Base")
+        if network == "celo":
+            bump("Celo")
+        if "metamask" in wallet or "metamask" in source:
+            bump("MetaMask")
+        if "uniswap" in source:
+            bump("Uniswap")
+
+    return counts

@@ -36,6 +36,10 @@ class TransactionRecord(BaseModel):
     timestamp: datetime
     asset: str
     quantity: float = Field(gt=0)
+    tx_hash: str | None = None
+    network: str | None = None
+    wallet_provider: str | None = None
+    source_app: str | None = None
     event_hint: str | None = None
     price_usd: float | None = Field(default=None, ge=0)
     proceeds_usd: float | None = Field(default=None, ge=0)
@@ -102,6 +106,7 @@ class ReportSummary(BaseModel):
     total_capital_gains_usd: float
     total_capital_losses_usd: float
     fallback_count: int
+    partner_signals: dict[str, int] = Field(default_factory=dict)
 
 
 class TaxReport(BaseModel):
@@ -113,6 +118,15 @@ class TaxReport(BaseModel):
 class MarkdownExport(BaseModel):
     filename: str
     content: str
+
+
+class PartnerIntegration(BaseModel):
+    id: str
+    name: str
+    status: Literal["active", "planned"]
+    category: str
+    description: str
+    docs_url: str
 
 
 class GenerateReportRequest(BaseModel):

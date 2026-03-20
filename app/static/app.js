@@ -6,6 +6,7 @@ const reportPanel = document.getElementById("report");
 const reportBody = document.getElementById("report-body");
 const assumptionList = document.getElementById("assumption-list");
 const exportButton = document.getElementById("export-button");
+const partnerSignals = document.getElementById("partner-signals");
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -80,6 +81,7 @@ function renderSummary(summary) {
   document.getElementById("losses-total").textContent = money.format(summary.total_capital_losses_usd);
   document.getElementById("fallback-total").textContent = String(summary.fallback_count);
   document.getElementById("summary-badge").textContent = `${summary.jurisdiction} ${summary.tax_year}`;
+  renderPartnerSignals(summary.partner_signals);
   summaryPanel.classList.remove("hidden");
 }
 
@@ -123,6 +125,17 @@ function renderFlow(item) {
     return escapeHtml(item.asset);
   }
   return parts.join("<br />");
+}
+
+function renderPartnerSignals(signals) {
+  const entries = Object.entries(signals || {});
+  if (entries.length === 0) {
+    partnerSignals.innerHTML = '<span class="signal-chip">No partner metadata detected</span>';
+    return;
+  }
+  partnerSignals.innerHTML = entries
+    .map(([name, count]) => `<span class="signal-chip">${escapeHtml(name)}: ${escapeHtml(count)}</span>`)
+    .join("");
 }
 
 function escapeHtml(value) {
