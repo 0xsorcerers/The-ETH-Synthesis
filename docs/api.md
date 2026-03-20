@@ -86,6 +86,17 @@ The generated report includes:
 
 These return a judge-friendly Markdown report attachment.
 
+## Saved Artifacts
+
+- `POST /artifacts/save`
+- `POST /artifacts/save-from-csv`
+
+These persist a run bundle under `artifacts/` containing:
+
+- `report.json`
+- `skynet-report-<jurisdiction>-<taxYear>.md`
+- `normalization-preview.json`
+
 ## Collaboration Trail
 
 Hackathon progress notes are tracked in `docs/collaboration-log.md`.

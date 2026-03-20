@@ -10,6 +10,9 @@ const partnerSignals = document.getElementById("partner-signals");
 const previewButton = document.getElementById("preview-button");
 const previewPanel = document.getElementById("preview");
 const previewBody = document.getElementById("preview-body");
+const bundleButton = document.getElementById("bundle-button");
+const bundlePanel = document.getElementById("bundle");
+const bundleDetails = document.getElementById("bundle-details");
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -38,12 +41,14 @@ form.addEventListener("submit", async (event) => {
     renderAssumptions(payload.assumptions);
     renderLineItems(payload.line_items);
     exportButton.classList.remove("hidden");
+    bundleButton.classList.remove("hidden");
     statusNode.textContent = "Report ready. Review line items and fallback flags below.";
   } catch (error) {
     summaryPanel.classList.add("hidden");
     assumptionsPanel.classList.add("hidden");
     reportPanel.classList.add("hidden");
     exportButton.classList.add("hidden");
+    bundleButton.classList.add("hidden");
     statusNode.textContent = error.message;
   }
 });
@@ -110,6 +115,40 @@ exportButton.addEventListener("click", async () => {
     URL.revokeObjectURL(url);
     statusNode.textContent = "Markdown report exported.";
   } catch (error) {
+    statusNode.textContent = error.message;
+  }
+});
+
+bundleButton.addEventListener("click", async () => {
+  statusNode.textContent = "Saving artifact bundle...";
+  const formData = new FormData(form);
+
+  try {
+    const response = await fetch("/artifacts/save-from-csv", {
+      method: "POST",
+      body: formData,
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Artifact bundle save failed.");
+    }
+
+    bundleDetails.innerHTML = `
+      <div>Bundle ID</div>
+      <code>${escapeHtml(payload.bundle_id)}</code>
+      <div>Directory</div>
+      <code>${escapeHtml(payload.directory)}</code>
+      <div>Report JSON</div>
+      <code>${escapeHtml(payload.report_json)}</code>
+      <div>Report Markdown</div>
+      <code>${escapeHtml(payload.report_markdown)}</code>
+      <div>Normalization Preview</div>
+      <code>${escapeHtml(payload.normalization_preview)}</code>
+    `;
+    bundlePanel.classList.remove("hidden");
+    statusNode.textContent = "Artifact bundle saved.";
+  } catch (error) {
+    bundlePanel.classList.add("hidden");
     statusNode.textContent = error.message;
   }
 });

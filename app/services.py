@@ -2,14 +2,17 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 from collections import defaultdict, deque
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from io import StringIO
 from pathlib import Path
 
 from fastapi import HTTPException
 
 from app.models import (
+    ArtifactBundle,
     ClassifiedTransaction,
     EventRule,
     GenerateReportRequest,
@@ -27,6 +30,7 @@ from app.models import (
 
 
 RULES_DIR = Path(__file__).resolve().parent.parent / "rules"
+ARTIFACTS_DIR = Path(__file__).resolve().parent.parent / "artifacts"
 PARTNER_INTEGRATIONS = [
     PartnerIntegration(
         id="base",
@@ -288,6 +292,32 @@ def export_report_markdown(report: TaxReport) -> MarkdownExport:
     return MarkdownExport(filename=filename, content="\n".join(lines).strip() + "\n")
 
 
+def save_artifact_bundle(request: GenerateReportRequest) -> ArtifactBundle:
+    report = generate_report(request)
+    preview = preview_normalization(request)
+    markdown_export = export_report_markdown(report)
+
+    bundle_id = _bundle_id(request.jurisdiction, request.tax_year)
+    bundle_dir = ARTIFACTS_DIR / bundle_id
+    bundle_dir.mkdir(parents=True, exist_ok=True)
+
+    report_json_path = bundle_dir / "report.json"
+    report_markdown_path = bundle_dir / markdown_export.filename
+    preview_path = bundle_dir / "normalization-preview.json"
+
+    report_json_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+    report_markdown_path.write_text(markdown_export.content, encoding="utf-8")
+    preview_path.write_text(json.dumps([item.model_dump(mode="json") for item in preview], indent=2), encoding="utf-8")
+
+    return ArtifactBundle(
+        bundle_id=bundle_id,
+        directory=str(bundle_dir),
+        report_json=str(report_json_path),
+        report_markdown=str(report_markdown_path),
+        normalization_preview=str(preview_path),
+    )
+
+
 def _apply_rule(
     classified: ClassifiedTransaction,
     rule: EventRule,
@@ -376,6 +406,12 @@ def _optional_float(value: str | None) -> float | None:
     if value in (None, ""):
         return None
     return float(value)
+
+
+def _bundle_id(jurisdiction: str, tax_year: int) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", jurisdiction.lower()).strip("-") or "report"
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    return f"{slug}-{tax_year}-{stamp}"
 
 
 def _normalize_transaction(record: TransactionRecord, event_type: str) -> NormalizedTransaction:

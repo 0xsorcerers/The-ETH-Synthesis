@@ -157,3 +157,34 @@ def test_normalization_preview_endpoint():
     assert body[0]["event_type"] == "lp_deposit"
     assert body[0]["normalized"]["disposed_asset"] == "ETH"
     assert body[0]["normalized"]["acquired_asset"] == "UNI-V2-ETH-USDC"
+
+
+def test_save_artifact_bundle(tmp_path, monkeypatch):
+    from app import services
+
+    monkeypatch.setattr(services, "ARTIFACTS_DIR", tmp_path)
+    response = client.post(
+        "/artifacts/save",
+        json={
+            "jurisdiction": "US",
+            "tax_year": 2025,
+            "transactions": [
+                {
+                    "tx_id": "tx-001",
+                    "timestamp": "2025-01-10T09:00:00Z",
+                    "asset": "ETH",
+                    "quantity": 1,
+                    "event_hint": "income",
+                    "price_usd": 2000,
+                    "fee_usd": 0,
+                    "description": "income payment",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert tmp_path.joinpath(body["bundle_id"]).exists()
+    assert tmp_path.joinpath(body["bundle_id"], "report.json").exists()
+    assert tmp_path.joinpath(body["bundle_id"], "normalization-preview.json").exists()

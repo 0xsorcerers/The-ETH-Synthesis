@@ -42,6 +42,7 @@
           <button id="preview-button" type="button" class="secondary">Preview Normalization</button>
           <button type="submit">Run Analysis</button>
           <button id="export-button" type="button" class="secondary hidden">Export Markdown</button>
+          <button id="bundle-button" type="button" class="secondary hidden">Save Bundle</button>
         </form>
         <p id="status" class="status">Upload a CSV to generate a report.</p>
       </section>
@@ -123,6 +124,13 @@
             <tbody id="report-body"></tbody>
           </table>
         </div>
+      </section>
+
+      <section id="bundle" class="panel hidden">
+        <div class="panel-head">
+          <h2>Saved Artifact Bundle</h2>
+        </div>
+        <div id="bundle-details" class="bundle-details"></div>
       </section>
     </main>
     <script src="/static/app.js"></script>
