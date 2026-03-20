@@ -37,6 +37,7 @@ Skynet ingests wallet activity or CSV exports, classifies on-chain activity, and
 - United States (US)
 - United Kingdom (UK)
 - Nigeria (NG)
+- Kenya (KE)
 
 ## Architecture
 
@@ -60,6 +61,7 @@ See [DEMO_SCRIPT.md](./DEMO_SCRIPT.md).
   - [`rules/us_2025.sample.json`](./rules/us_2025.sample.json)
   - [`rules/uk_2025.sample.json`](./rules/uk_2025.sample.json)
   - [`rules/ng_2025.sample.json`](./rules/ng_2025.sample.json)
+  - [`rules/ke_2025.sample.json`](./rules/ke_2025.sample.json)
 
 ## Setup (Hackathon Baseline)
 
