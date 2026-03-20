@@ -59,6 +59,10 @@ export OWNER_WALLET='0x...'
 export REPO_URL='https://github.com/<owner>/<repo>'
 export MOLTBOOK_POST_URL='https://www.moltbook.com/posts/...'
 
+## discover + cache identifiers first:
+scripts/publish_synthesis.sh cache-session
+source tmp/synthesis_session.env
+
 # if no project exists yet:
 scripts/publish_synthesis.sh create
 
