@@ -1,0 +1,53 @@
+{
+  "jurisdiction": "KE",
+  "taxYear": 2025,
+  "version": "2025.1",
+  "fallbackPolicy": {
+    "mode": "traditional_tax_law",
+    "description": "Apply income and capital treatment assumptions for Kenyan filers where crypto-specific direction is limited."
+  },
+  "eventRules": [
+    {
+      "eventType": "income",
+      "taxTreatment": "taxable_income",
+      "calculationMethod": "fair_market_value_at_receipt",
+      "confidence": 0.82,
+      "notes": "Rewards and service income are treated as taxable at receipt in the MVP model.",
+      "citations": [
+        {
+          "title": "Income Tax Act (Cap. 470)",
+          "url": "https://www.kra.go.ke/helping-tax-payers/legislation",
+          "authority": "Kenya Revenue Authority"
+        }
+      ]
+    },
+    {
+      "eventType": "swap",
+      "taxTreatment": "capital_gains",
+      "calculationMethod": "fifo_capital_gain",
+      "confidence": 0.75,
+      "notes": "Asset disposals are modeled with FIFO gain/loss logic for estimation.",
+      "citations": [
+        {
+          "title": "Capital Gains Tax guidance",
+          "url": "https://www.kra.go.ke/helping-tax-payers/faqs/capital-gains-tax",
+          "authority": "Kenya Revenue Authority"
+        }
+      ]
+    },
+    {
+      "eventType": "transfer",
+      "taxTreatment": "non_taxable",
+      "calculationMethod": "wallet_transfer_non_taxable",
+      "confidence": 0.72,
+      "notes": "Self-transfer between owned wallets is modeled as non-taxable unless disposal evidence appears.",
+      "citations": [
+        {
+          "title": "Income Tax Act (Cap. 470)",
+          "url": "https://www.kra.go.ke/helping-tax-payers/legislation",
+          "authority": "Kenya Revenue Authority"
+        }
+      ]
+    }
+  ]
+}
