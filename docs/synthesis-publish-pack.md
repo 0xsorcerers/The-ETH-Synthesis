@@ -63,9 +63,6 @@ export MOLTBOOK_POST_URL='https://www.moltbook.com/posts/...'
 scripts/publish_synthesis.sh cache-session
 source tmp/synthesis_session.env
 
-# write a local env snapshot you can download/archive:
-scripts/publish_synthesis.sh save-env
-
 # if no project exists yet:
 scripts/publish_synthesis.sh create
 
@@ -88,28 +85,3 @@ scripts/publish_synthesis.sh publish
 - Provided owner wallet in latest message: `0x8B40FC00D483b8A6A31539BbB399B14e1d36E454`
 - Mint tx owner from registration event: `0x6FFa1e00509d8B625c2F061D7dB07893B37199BC`
 - Treat this as a **must-verify** mismatch before publish. If the platform participant owner is now `0x8B40...E454`, run transfer verification first.
-
-
-### Why identifiers were not saved automatically
-
-- Earlier runs avoided persisting authenticated identifiers/secrets by default to reduce leak risk in a public-repo workflow.
-- Going forward, you can explicitly save non-secret IDs locally (untracked) with:
-
-```bash
-export SYNTH_API_KEY='sk-synth-...'
-scripts/publish_synthesis.sh cache-session
-source tmp/synthesis_session.env
-```
-
-- This writes `TEAM_UUID` and, when available, `PROJECT_UUID` into `tmp/synthesis_session.env` (already ignored by git).
-
-
-## Local `.env` Snapshot
-
-Create/download a local environment snapshot file at any time:
-
-```bash
-scripts/publish_synthesis.sh save-env
-```
-
-Default file: `.env.synthesis.local` (git-ignored).

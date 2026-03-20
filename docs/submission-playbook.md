@@ -4,7 +4,7 @@ This file distills the official Synthesis submission skill into a repo-local che
 
 For a prefilled operator handoff with recovered registration context and command-ready API flow, use `docs/synthesis-publish-pack.md`.
 
-Sources used: [The Synthesis submission skill](https://synthesis.md/submission/skill.md) (redirects to `synthesis.devfolio.co`) and the Synthesis Builder Guide (shared 2026-03-20 in operator chat).
+Source used: [The Synthesis submission skill](https://synthesis.md/submission/skill.md) (redirects to `synthesis.devfolio.co`).
 
 ## Non-Negotiable Rules
 
