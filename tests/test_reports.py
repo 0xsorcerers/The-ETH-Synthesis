@@ -260,3 +260,25 @@ def test_list_artifact_bundles(tmp_path, monkeypatch):
     assert body[0]["bundle_id"] == "us-2025-20260320T000000Z"
     assert body[0]["report_html"].endswith(".html")
     assert body[0]["collaboration_log"].endswith("collaboration-log.md")
+
+
+def test_publish_endpoint(tmp_path, monkeypatch):
+    from app import services
+
+    monkeypatch.setattr(services, "PUBLISHED_DIR", tmp_path / "published")
+    monkeypatch.setattr(services, "ARTIFACTS_DIR", tmp_path / "artifacts")
+
+    latest_bundle = services.ARTIFACTS_DIR / "us-2025-20260320T000000Z"
+    latest_bundle.mkdir(parents=True)
+    latest_bundle.joinpath("report.json").write_text("{}", encoding="utf-8")
+    latest_bundle.joinpath("normalization-preview.json").write_text("[]", encoding="utf-8")
+    latest_bundle.joinpath("collaboration-log.md").write_text("# log", encoding="utf-8")
+
+    response = client.post("/publish")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["publish_id"].startswith("skynet-publish-")
+    assert (tmp_path / "published" / body["publish_id"]).exists()
+    assert body["summary_markdown"].endswith("PUBLISHED_SUMMARY.md")
+    assert any(path.endswith("latest-report.json") for path in body["included_artifacts"])

@@ -35,9 +35,9 @@ Docs: https://docs.uniswap.org/
 
 ### Self
 
-- Deferred for a later UI phase.
-- Intended use: identity verification for compliance-sensitive exports or onboarding.
-- The current MVP records this as a planned integration and exposes it through the `/partners` catalog.
+- Deferred for a later phase.
+- For the current solo-team hackathon submission, self-custody identity integration is intentionally not required.
+- The current MVP keeps this as optional future work in the `/partners` catalog.
 
 Docs: https://docs.self.xyz/frontend-integration/qrcode-sdk
 

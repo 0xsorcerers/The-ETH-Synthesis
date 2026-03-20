@@ -16,6 +16,7 @@ from app.services import (
     list_partner_integrations,
     list_supported_jurisdictions,
     parse_transactions_csv,
+    publish_current_work,
     preview_normalization,
     save_artifact_bundle,
 )
@@ -58,6 +59,11 @@ def agent_manifest():
 @app.get("/artifacts")
 def artifacts():
     return list_artifact_bundles()
+
+
+@app.post("/publish")
+def publish():
+    return publish_current_work()
 
 
 @app.post("/reports/generate")

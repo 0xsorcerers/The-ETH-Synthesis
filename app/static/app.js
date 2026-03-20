@@ -14,6 +14,7 @@ const bundleButton = document.getElementById("bundle-button");
 const htmlButton = document.getElementById("html-button");
 const bundlePanel = document.getElementById("bundle");
 const bundleDetails = document.getElementById("bundle-details");
+const publishButton = document.getElementById("publish-button");
 const refreshHistoryButton = document.getElementById("refresh-history-button");
 const historyList = document.getElementById("history-list");
 const guideGrid = document.getElementById("guide-grid");
@@ -194,6 +195,34 @@ bundleButton.addEventListener("click", async () => {
     statusNode.textContent = "Artifact bundle saved.";
   } catch (error) {
     bundlePanel.classList.add("hidden");
+    statusNode.textContent = error.message;
+  }
+});
+
+publishButton.addEventListener("click", async () => {
+  statusNode.textContent = "Publishing current work snapshot...";
+  try {
+    const response = await fetch("/publish", { method: "POST" });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Publish failed.");
+    }
+
+    bundleDetails.innerHTML = `
+      <div>Publish ID</div>
+      <code>${escapeHtml(payload.publish_id)}</code>
+      <div>Publish Directory</div>
+      <code>${escapeHtml(payload.directory)}</code>
+      <div>Summary Markdown</div>
+      <code>${escapeHtml(payload.summary_markdown)}</code>
+      <div>Included Docs</div>
+      <code>${escapeHtml((payload.included_docs || []).join("\n") || "none")}</code>
+      <div>Included Artifacts</div>
+      <code>${escapeHtml((payload.included_artifacts || []).join("\n") || "none")}</code>
+    `;
+    bundlePanel.classList.remove("hidden");
+    statusNode.textContent = "Build snapshot published locally.";
+  } catch (error) {
     statusNode.textContent = error.message;
   }
 });

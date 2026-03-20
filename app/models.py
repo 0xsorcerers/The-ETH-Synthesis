@@ -203,6 +203,14 @@ class AgentManifest(BaseModel):
     recommended_endpoints: list[str]
 
 
+class PublishedBuild(BaseModel):
+    publish_id: str
+    directory: str
+    summary_markdown: str
+    included_artifacts: list[str] = Field(default_factory=list)
+    included_docs: list[str] = Field(default_factory=list)
+
+
 class GenerateReportRequest(BaseModel):
     jurisdiction: str = Field(min_length=2, max_length=8)
     tax_year: int = Field(ge=2000)
