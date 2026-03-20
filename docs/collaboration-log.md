@@ -17,3 +17,4 @@
 - Added a normalization preview flow so raw transaction interpretation is inspectable before reporting.
 - Added persisted artifact bundles so each run can be saved as reusable submission evidence.
 - Added artifact history browsing so saved bundles are visible from the demo UI and API.
+- Added rule citation support so reports can carry official-source evidence alongside applied logic.

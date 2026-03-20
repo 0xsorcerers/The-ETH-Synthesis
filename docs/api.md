@@ -77,6 +77,7 @@ The generated report includes:
 
 - summary totals for income and capital gains/losses
 - line-by-line explainability data
+- rule citation links when available in the rule pack
 - fallback indicators when no jurisdiction-specific rule exists
 - assumptions used by the MVP engine
 - normalized asset flow details for disposals and acquisitions
@@ -89,6 +90,7 @@ The generated report includes:
 - `POST /reports/export-markdown-from-csv`
 
 These return a judge-friendly Markdown report attachment.
+The Markdown export includes rule citations when they exist in the applied rule set.
 
 ## Saved Artifacts
 

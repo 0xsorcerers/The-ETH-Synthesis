@@ -253,6 +253,10 @@ td small {
   line-height: 1.5;
 }
 
+td small a {
+  color: var(--accent);
+}
+
 .flag {
   display: inline-block;
   padding: 4px 8px;

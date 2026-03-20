@@ -204,6 +204,7 @@ def generate_report(request: GenerateReportRequest) -> TaxReport:
                 acquired_asset=classified.normalized.acquired_asset,
                 acquired_quantity=classified.normalized.acquired_quantity,
                 rule_notes=rule.notes,
+                citations=rule.citations,
             )
         )
 
@@ -287,6 +288,9 @@ def export_report_markdown(report: TaxReport) -> MarkdownExport:
         )
         if item.rule_notes:
             lines.append(f"- Rule notes: {item.rule_notes}")
+        if item.citations:
+            lines.append("- Citations:")
+            lines.extend([f"  - {citation.authority}: {citation.title} ({citation.url})" for citation in item.citations])
         lines.append("")
 
     filename = f"skynet-report-{summary.jurisdiction.lower()}-{summary.tax_year}.md"

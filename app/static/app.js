@@ -190,6 +190,7 @@ function renderLineItems(items) {
           <td>
             ${item.fallback_applied ? '<span class="flag">fallback</span>' : '<span class="flag danger">rule matched</span>'}
             <small>${escapeHtml(item.explanation)}</small>
+            ${renderCitations(item.citations)}
           </td>
         </tr>
       `,
@@ -234,6 +235,18 @@ function renderPartnerSignals(signals) {
   }
   partnerSignals.innerHTML = entries
     .map(([name, count]) => `<span class="signal-chip">${escapeHtml(name)}: ${escapeHtml(count)}</span>`)
+    .join("");
+}
+
+function renderCitations(citations) {
+  if (!citations || citations.length === 0) {
+    return "";
+  }
+  return citations
+    .map(
+      (citation) =>
+        `<small><a href="${escapeHtml(citation.url)}" target="_blank" rel="noreferrer">${escapeHtml(citation.authority)}: ${escapeHtml(citation.title)}</a></small>`,
+    )
     .join("");
 }
 

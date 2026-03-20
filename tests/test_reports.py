@@ -66,6 +66,7 @@ def test_generate_report_from_json():
     assert body["line_items"][1]["disposed_asset"] == "ETH"
     assert body["line_items"][1]["acquired_asset"] == "SOL"
     assert body["line_items"][1]["acquired_quantity"] == 8
+    assert body["line_items"][0]["citations"][0]["authority"] == "IRS"
 
 
 def test_generate_report_from_csv_upload():
@@ -115,6 +116,7 @@ def test_export_markdown_from_json():
     assert response.headers["content-type"].startswith("text/markdown")
     assert "Skynet Tax Report" in response.text
     assert "Taxable income: $2,000.00" in response.text
+    assert "IRS: Digital Assets" in response.text
 
 
 def test_partner_catalog_endpoint():

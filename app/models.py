@@ -26,12 +26,19 @@ class FallbackPolicy(BaseModel):
     description: str
 
 
+class RuleCitation(BaseModel):
+    title: str
+    url: str
+    authority: str
+
+
 class EventRule(BaseModel):
     eventType: EventType
     taxTreatment: TaxTreatment
     calculationMethod: str
     confidence: float = Field(ge=0, le=1)
     notes: str | None = None
+    citations: list[RuleCitation] = Field(default_factory=list)
 
 
 class RuleSet(BaseModel):
@@ -108,6 +115,7 @@ class ReportLineItem(BaseModel):
     acquired_asset: str | None = None
     acquired_quantity: float = 0
     rule_notes: str | None = None
+    citations: list[RuleCitation] = Field(default_factory=list)
 
 
 class ReportSummary(BaseModel):

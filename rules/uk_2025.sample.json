@@ -11,31 +11,66 @@
       "eventType": "income",
       "taxTreatment": "taxable_income",
       "calculationMethod": "fair_market_value_at_receipt",
-      "confidence": 0.82
+      "confidence": 0.82,
+      "citations": [
+        {
+          "title": "Cryptoassets Manual",
+          "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto10000",
+          "authority": "HMRC"
+        }
+      ]
     },
     {
       "eventType": "swap",
       "taxTreatment": "capital_gains",
       "calculationMethod": "fifo_capital_gain",
-      "confidence": 0.8
+      "confidence": 0.8,
+      "citations": [
+        {
+          "title": "CRYPTO31200 - Corporation Tax on chargeable gains",
+          "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto31200",
+          "authority": "HMRC"
+        }
+      ]
     },
     {
       "eventType": "unstaking",
       "taxTreatment": "non_taxable",
       "calculationMethod": "principal_return_non_taxable",
-      "confidence": 0.72
+      "confidence": 0.72,
+      "citations": [
+        {
+          "title": "Cryptoassets Manual",
+          "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto10000",
+          "authority": "HMRC"
+        }
+      ]
     },
     {
       "eventType": "lp_deposit",
       "taxTreatment": "non_taxable",
       "calculationMethod": "liquidity_position_entry",
-      "confidence": 0.68
+      "confidence": 0.68,
+      "citations": [
+        {
+          "title": "Cryptoassets Manual",
+          "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto10000",
+          "authority": "HMRC"
+        }
+      ]
     },
     {
       "eventType": "lp_withdrawal",
       "taxTreatment": "capital_gains",
       "calculationMethod": "fifo_lp_exit",
-      "confidence": 0.7
+      "confidence": 0.7,
+      "citations": [
+        {
+          "title": "CRYPTO31200 - Corporation Tax on chargeable gains",
+          "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto31200",
+          "authority": "HMRC"
+        }
+      ]
     }
   ]
 }

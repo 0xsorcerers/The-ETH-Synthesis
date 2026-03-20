@@ -40,3 +40,8 @@ Docs: https://docs.uniswap.org/
 - The current MVP records this as a planned integration and exposes it through the `/partners` catalog.
 
 Docs: https://docs.self.xyz/frontend-integration/qrcode-sdk
+
+## Evidence Layer
+
+- Rule packs now support citation links so official tax authority sources can travel with report output.
+- Current MVP citations point at official IRS and HMRC materials where the sample rules make explicit assumptions.

@@ -59,6 +59,25 @@
           },
           "notes": {
             "type": "string"
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["title", "url", "authority"],
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "authority": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
