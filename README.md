@@ -83,3 +83,11 @@ pip install fastapi uvicorn pydantic
 - More jurisdictions and yearly rule versioning
 - Evidence-backed citation layer for tax references
 - Agentic workflow for draft filing assistance
+
+## New Build Improvements (2026-03-20)
+
+- Agent-ready manifest endpoint: `GET /agent/manifest`
+- Dynamic supported-jurisdiction discovery: `GET /jurisdictions`
+- Guided workflow cards in UI for human + AI operator alignment
+- Improved visual depth with a 3D-style hero orb and step cards
+- Rule-set in-memory cache for better throughput when reports are repeatedly generated

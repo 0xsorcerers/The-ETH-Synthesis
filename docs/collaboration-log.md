@@ -20,3 +20,8 @@
 - Added rule citation support so reports can carry official-source evidence alongside applied logic.
 - Added collaboration-log snapshots into saved bundles so each evidence package carries process history too.
 - Added structured formula audit details and HTML report export for richer reporting artifacts.
+- Added dynamic jurisdiction discovery endpoint (`/jurisdictions`) so clients and agents can scale to newly-added rule packs without frontend hardcoding.
+- Added agent manifest endpoint (`/agent/manifest`) with workflow, safety checks, and UI element explanations for autonomous usage.
+- Added a guided workflow panel and manifest-copy action in the UI, plus refreshed visual styling with a 3D hero orb and card depth treatment.
+- Added in-memory rule-set caching in the rule loader to reduce repeated file reads as request volume grows.
+- Could not execute hackathon publish step or external Moltbook outreach from this environment because no authenticated publishing/social credentials are available in-repo.

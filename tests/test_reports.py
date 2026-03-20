@@ -155,6 +155,27 @@ def test_partner_catalog_endpoint():
     assert any(item["id"] == "self" and item["status"] == "planned" for item in body)
 
 
+def test_supported_jurisdictions_endpoint():
+    response = client.get("/jurisdictions")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert any(item["code"] == "US" for item in body)
+    assert any(item["code"] == "UK" for item in body)
+    assert any(item["code"] == "NG" for item in body)
+    assert all(2025 in item["tax_years"] for item in body)
+
+
+def test_agent_manifest_endpoint():
+    response = client.get("/agent/manifest")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["app_name"] == "Skynet Tax Engine"
+    assert "/jurisdictions" in " ".join(body["workflow"])
+    assert any("harmful" in item for item in body["safety_checks"])
+
+
 def test_normalization_preview_endpoint():
     response = client.post(
         "/normalize/preview",

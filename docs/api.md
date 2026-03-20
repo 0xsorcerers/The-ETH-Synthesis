@@ -25,6 +25,14 @@ Serves the browser-based demo interface for CSV upload and report review.
 
 Returns the current partner integration catalog and status.
 
+### `GET /jurisdictions`
+
+Returns the currently supported jurisdiction codes and available tax years discovered from the local rule packs.
+
+### `GET /agent/manifest`
+
+Returns an agent-oriented manifest describing recommended workflow, safety checks, endpoint affordances, and key app element explanations.
+
 ### `GET /artifacts`
 
 Returns the saved artifact bundle history from the local `artifacts/` directory.

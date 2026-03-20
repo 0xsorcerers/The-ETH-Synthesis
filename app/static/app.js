@@ -16,6 +16,11 @@ const bundlePanel = document.getElementById("bundle");
 const bundleDetails = document.getElementById("bundle-details");
 const refreshHistoryButton = document.getElementById("refresh-history-button");
 const historyList = document.getElementById("history-list");
+const guideGrid = document.getElementById("guide-grid");
+const manifestButton = document.getElementById("manifest-button");
+const jurisdictionSelect = document.getElementById("jurisdiction-select");
+
+let agentManifestCache = null;
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -197,6 +202,17 @@ refreshHistoryButton.addEventListener("click", async () => {
   await loadArtifactHistory();
 });
 
+manifestButton.addEventListener("click", async () => {
+  statusNode.textContent = "Preparing agent manifest...";
+  try {
+    const manifest = await loadAgentManifest();
+    await navigator.clipboard.writeText(JSON.stringify(manifest, null, 2));
+    statusNode.textContent = "Agent manifest copied to clipboard.";
+  } catch (error) {
+    statusNode.textContent = error.message;
+  }
+});
+
 function renderSummary(summary) {
   document.getElementById("income-total").textContent = money.format(summary.total_taxable_income_usd);
   document.getElementById("gains-total").textContent = money.format(summary.total_capital_gains_usd);
@@ -328,4 +344,59 @@ async function loadArtifactHistory() {
   }
 }
 
+async function loadJurisdictions() {
+  try {
+    const response = await fetch("/jurisdictions");
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Failed to load jurisdictions.");
+    }
+
+    if (!Array.isArray(payload) || payload.length === 0) {
+      jurisdictionSelect.innerHTML = '<option value="US">United States</option>';
+      return;
+    }
+
+    jurisdictionSelect.innerHTML = payload
+      .map((item) => `<option value="${escapeHtml(item.code)}">${escapeHtml(item.label)}</option>`)
+      .join("");
+  } catch (error) {
+    jurisdictionSelect.innerHTML = '<option value="US">United States</option>';
+    statusNode.textContent = error.message;
+  }
+}
+
+async function loadAgentManifest() {
+  if (agentManifestCache) {
+    return agentManifestCache;
+  }
+  const response = await fetch("/agent/manifest");
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload.detail || "Failed to load agent manifest.");
+  }
+  agentManifestCache = payload;
+  return payload;
+}
+
+async function loadGuideCards() {
+  try {
+    const manifest = await loadAgentManifest();
+    guideGrid.innerHTML = manifest.workflow
+      .map(
+        (step, index) => `
+          <article>
+            <span>Step ${index + 1}</span>
+            <p>${escapeHtml(step)}</p>
+          </article>
+        `,
+      )
+      .join("");
+  } catch (error) {
+    guideGrid.innerHTML = `<article><span>Unavailable</span><p>${escapeHtml(error.message)}</p></article>`;
+  }
+}
+
 loadArtifactHistory();
+loadJurisdictions();
+loadGuideCards();

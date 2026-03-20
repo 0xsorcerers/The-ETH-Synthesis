@@ -16,6 +16,7 @@
 2. **API Layer**
    - Receives ingestion and report generation requests
    - Orchestrates classification, rule resolution, and calculation
+   - Exposes an `agent manifest` and supported-jurisdiction discovery for autonomous client orchestration
 
 3. **Ingestion Service**
    - Parses transaction inputs
@@ -27,6 +28,7 @@
 
 5. **Rule Engine**
    - Loads rules by `jurisdiction` + `taxYear`
+   - Caches hot rule sets in memory to reduce repeated file I/O under frequent requests
    - Applies fallback hierarchy when local crypto rules are missing
 
 6. **Calculation Engine**
@@ -63,6 +65,14 @@ Each computed event should include:
 - applied rule id/version
 - calculation formula inputs/outputs
 - confidence and fallback flags
+
+## Agent-First Interface Layer
+
+Skynet now includes lightweight agent affordances:
+
+- `GET /jurisdictions` for machine-readable support discovery.
+- `GET /agent/manifest` for workflow steps, UI element semantics, and safety checks.
+- UI-level guided workflow cards so both humans and AI operators use the same execution path.
 
 ## Suggested Tech Stack
 
