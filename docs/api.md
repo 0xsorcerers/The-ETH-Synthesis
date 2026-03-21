@@ -27,7 +27,7 @@ Returns the current partner integration catalog and status.
 
 ### `GET /jurisdictions`
 
-Returns the currently supported jurisdiction codes and available tax years discovered from the local rule packs.
+Returns jurisdiction codes and tax years discovered from local rule packs, plus an `ALL` baseline entry for UN-aligned coverage. Reports can also be generated for any 2-3 letter jurisdiction code, which triggers baseline public-law rules when no local pack exists.
 
 ### `GET /agent/manifest`
 

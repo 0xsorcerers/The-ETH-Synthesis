@@ -32,12 +32,13 @@ Skynet ingests wallet activity or CSV exports, classifies on-chain activity, and
   - assumptions and confidence indicators
   - operator guidance for humans and AI agents
 
-## Supported Jurisdictions (MVP)
+## Supported Jurisdictions
 
 - United States (US)
 - United Kingdom (UK)
 - Nigeria (NG)
 - Kenya (KE)
+- Any additional 2-3 letter country code can be evaluated with a UN-aligned public-law baseline ruleset when a dedicated local rule pack is not present.
 
 ## Architecture
 
