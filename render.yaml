@@ -3,8 +3,8 @@ services:
     name: skynet-tax-engine
     runtime: python
     version: 3.11
-    buildCommand: pip install -e .
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: poetry install --no-root
+    startCommand: poetry run uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.11
