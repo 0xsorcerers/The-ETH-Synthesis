@@ -69,6 +69,10 @@
             <select name="jurisdiction" id="jurisdiction-select"></select>
           </label>
           <label>
+            Compare Jurisdictions (Humans/Agents)
+            <select id="jurisdiction-multi-select" multiple size="4"></select>
+          </label>
+          <label>
             Tax Year
             <input type="number" name="tax_year" value="2025" min="2025" step="1" />
           </label>
@@ -80,6 +84,7 @@
           <button id="inspect-button" type="button" class="secondary">Inspect CSV</button>
           <button id="preview-button" type="button" class="secondary">Preview Normalization</button>
           <button type="submit">Run Analysis</button>
+          <button id="multi-report-button" type="button" class="secondary">Run Multi-Jurisdiction Analysis</button>
           <button id="export-button" type="button" class="secondary hidden">Export Markdown</button>
           <button id="html-button" type="button" class="secondary hidden">Export HTML</button>
           <button id="bundle-button" type="button" class="secondary hidden">Save Bundle</button>
@@ -230,6 +235,35 @@
           <h3>Partner Signals</h3>
           <div id="partner-signals" class="signal-list"></div>
         </div>
+      </section>
+
+      <section id="multi-summary" class="panel hidden">
+        <div class="panel-head">
+          <h2>Multi-Jurisdiction Comparison</h2>
+          <span class="badge">SATA Protocol</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Jurisdiction</th>
+                <th>Taxable Income</th>
+                <th>Capital Gains</th>
+                <th>Capital Losses</th>
+                <th>Fallback Count</th>
+              </tr>
+            </thead>
+            <tbody id="multi-summary-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="rule-templates" class="panel">
+        <div class="panel-head">
+          <h2>Jurisdiction Rule Templates</h2>
+          <span class="badge">Jurisdiction Data</span>
+        </div>
+        <div id="rule-templates-body" class="guide-list"></div>
       </section>
 
       <section id="assumptions" class="panel hidden">

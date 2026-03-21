@@ -194,6 +194,45 @@ def test_generate_report_for_open_jurisdiction_baseline():
     assert body["line_items"][0]["citations"][0]["authority"] == "OECD"
 
 
+def test_generate_multi_jurisdiction_report():
+    response = client.post(
+        "/reports/generate-multi",
+        json={
+            "jurisdictions": ["US", "UK"],
+            "tax_year": 2025,
+            "transactions": [
+                {
+                    "tx_id": "tx-001",
+                    "timestamp": "2025-01-10T09:00:00Z",
+                    "asset": "ETH",
+                    "quantity": 1,
+                    "event_hint": "income",
+                    "price_usd": 2000,
+                    "fee_usd": 0,
+                    "description": "income payment",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["tax_year"] == 2025
+    assert body["jurisdictions"] == ["US", "UK"]
+    assert len(body["reports"]) == 2
+    assert {item["jurisdiction"] for item in body["comparison"]} == {"US", "UK"}
+
+
+def test_jurisdiction_rule_templates_endpoint():
+    response = client.get("/rules/templates?jurisdictions=US,NG&tax_year=2025")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body) == 2
+    assert body[0]["tax_year"] == 2025
+    assert all("event_templates" in item for item in body)
+
+
 def test_agent_manifest_endpoint():
     response = client.get("/agent/manifest")
 

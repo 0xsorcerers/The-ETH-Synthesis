@@ -284,6 +284,11 @@ button {
   font: inherit;
 }
 
+select[multiple] {
+  min-height: 132px;
+  padding: 10px;
+}
+
 input,
 select {
   background: rgba(255, 255, 255, 0.92);
