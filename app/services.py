@@ -29,13 +29,19 @@ from app.models import (
     IngestionReadinessReport,
     IngestionReadinessSummary,
     MarkdownExport,
+    MultiJurisdictionComparisonRow,
+    MultiJurisdictionReport,
+    MultiJurisdictionReportRequest,
     AgentManifest,
+    JurisdictionReportResult,
+    JurisdictionRuleTemplate,
     NormalizedTransaction,
     NormalizationPreviewItem,
     PartnerIntegration,
     ReportLineItem,
     ReportSummary,
     RuleSet,
+    RuleTemplateEvent,
     SupportedJurisdiction,
     TaxReport,
     TaxTreatment,
@@ -394,6 +400,44 @@ def generate_report(request: GenerateReportRequest) -> TaxReport:
         partner_signals=_collect_partner_signals(request.transactions),
     )
     return TaxReport(summary=summary, line_items=line_items, assumptions=assumptions)
+
+
+def generate_multi_jurisdiction_report(request: MultiJurisdictionReportRequest) -> MultiJurisdictionReport:
+    unique_jurisdictions = list(dict.fromkeys(code.upper() for code in request.jurisdictions if code.strip()))
+    if not unique_jurisdictions:
+        raise HTTPException(status_code=400, detail="At least one jurisdiction code is required.")
+
+    labels = {item.code: item.label for item in list_supported_jurisdictions()}
+    reports: list[JurisdictionReportResult] = []
+    comparison: list[MultiJurisdictionComparisonRow] = []
+
+    for jurisdiction in unique_jurisdictions:
+        report = generate_report(
+            GenerateReportRequest(
+                jurisdiction=jurisdiction,
+                tax_year=request.tax_year,
+                transactions=request.transactions,
+            )
+        )
+        label = labels.get(jurisdiction, jurisdiction)
+        reports.append(JurisdictionReportResult(jurisdiction=jurisdiction, label=label, report=report))
+        comparison.append(
+            MultiJurisdictionComparisonRow(
+                jurisdiction=jurisdiction,
+                label=label,
+                taxable_income_usd=report.summary.total_taxable_income_usd,
+                capital_gains_usd=report.summary.total_capital_gains_usd,
+                capital_losses_usd=report.summary.total_capital_losses_usd,
+                fallback_count=report.summary.fallback_count,
+            )
+        )
+
+    return MultiJurisdictionReport(
+        tax_year=request.tax_year,
+        jurisdictions=unique_jurisdictions,
+        reports=reports,
+        comparison=comparison,
+    )
 
 
 def preview_normalization(request: GenerateReportRequest) -> list[NormalizationPreviewItem]:
@@ -1328,6 +1372,38 @@ def list_supported_jurisdictions() -> list[SupportedJurisdiction]:
         )
     )
     return jurisdictions
+
+
+def get_jurisdiction_rule_templates(jurisdictions: list[str], tax_year: int) -> list[JurisdictionRuleTemplate]:
+    codes = list(dict.fromkeys(code.upper() for code in jurisdictions if code.strip()))
+    if not codes:
+        raise HTTPException(status_code=400, detail="At least one jurisdiction code is required.")
+
+    labels = {item.code: item.label for item in list_supported_jurisdictions()}
+    templates: list[JurisdictionRuleTemplate] = []
+    for code in codes:
+        ruleset = load_rule_set(code, tax_year)
+        templates.append(
+            JurisdictionRuleTemplate(
+                jurisdiction=ruleset.jurisdiction,
+                label=labels.get(ruleset.jurisdiction, ruleset.jurisdiction),
+                tax_year=ruleset.taxYear,
+                version=ruleset.version,
+                fallback_mode=ruleset.fallbackPolicy.mode,
+                fallback_description=ruleset.fallbackPolicy.description,
+                event_templates=[
+                    RuleTemplateEvent(
+                        event_type=rule.eventType,
+                        tax_treatment=rule.taxTreatment,
+                        calculation_method=rule.calculationMethod,
+                        confidence=rule.confidence,
+                        notes=rule.notes,
+                    )
+                    for rule in ruleset.eventRules
+                ],
+            )
+        )
+    return templates
 
 
 def build_agent_manifest() -> AgentManifest:

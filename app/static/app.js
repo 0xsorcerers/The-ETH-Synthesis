@@ -34,6 +34,12 @@ const historyList = document.getElementById("history-list");
 const guideGrid = document.getElementById("guide-grid");
 const manifestButton = document.getElementById("manifest-button");
 const jurisdictionSelect = document.getElementById("jurisdiction-select");
+const jurisdictionMultiSelect = document.getElementById("jurisdiction-multi-select");
+const multiReportButton = document.getElementById("multi-report-button");
+const multiSummaryPanel = document.getElementById("multi-summary");
+const multiSummaryBody = document.getElementById("multi-summary-body");
+const ruleTemplatesBody = document.getElementById("rule-templates-body");
+const taxYearInput = document.querySelector('input[name="tax_year"]');
 const heroGuide = document.getElementById("hero-guide");
 const workflowList = document.getElementById("workflow-list");
 const uiGuideList = document.getElementById("ui-guide-list");
@@ -172,6 +178,29 @@ previewButton.addEventListener("click", async () => {
     statusNode.textContent = "Normalization preview ready.";
   } catch (error) {
     previewPanel.classList.add("hidden");
+    statusNode.textContent = error.message;
+  }
+});
+
+multiReportButton.addEventListener("click", async () => {
+  statusNode.textContent = "Running multi-jurisdiction analysis...";
+  const formData = new FormData(form);
+  const jurisdictions = selectedJurisdictions();
+  formData.set("jurisdictions", jurisdictions.join(","));
+
+  try {
+    const response = await fetch("/reports/generate-multi-from-csv", {
+      method: "POST",
+      body: formData,
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Multi-jurisdiction analysis failed.");
+    }
+    renderMultiJurisdictionSummary(payload.comparison || []);
+    statusNode.textContent = "Multi-jurisdiction analysis is ready.";
+  } catch (error) {
+    multiSummaryPanel.classList.add("hidden");
     statusNode.textContent = error.message;
   }
 });
@@ -551,15 +580,83 @@ async function loadJurisdictions() {
 
     if (!Array.isArray(payload) || payload.length === 0) {
       jurisdictionSelect.innerHTML = '<option value="US">United States</option>';
+      jurisdictionMultiSelect.innerHTML = '<option value="US">United States</option>';
       return;
     }
 
     jurisdictionSelect.innerHTML = payload
       .map((item) => `<option value="${escapeHtml(item.code)}">${escapeHtml(item.label)}</option>`)
       .join("");
+    jurisdictionMultiSelect.innerHTML = payload
+      .map((item) => `<option value="${escapeHtml(item.code)}">${escapeHtml(item.label)}</option>`)
+      .join("");
+    if (jurisdictionMultiSelect.options.length > 0) {
+      jurisdictionMultiSelect.options[0].selected = true;
+    }
   } catch (error) {
     jurisdictionSelect.innerHTML = '<option value="US">United States</option>';
+    jurisdictionMultiSelect.innerHTML = '<option value="US">United States</option>';
     statusNode.textContent = error.message;
+  }
+}
+
+function selectedJurisdictions() {
+  const values = Array.from(jurisdictionMultiSelect.selectedOptions).map((option) => option.value);
+  if (values.length > 0) {
+    return values;
+  }
+  return [jurisdictionSelect.value];
+}
+
+function renderMultiJurisdictionSummary(rows) {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    multiSummaryPanel.classList.add("hidden");
+    return;
+  }
+  multiSummaryBody.innerHTML = rows
+    .map(
+      (row) => `
+        <tr>
+          <td>${escapeHtml(row.label)} (${escapeHtml(row.jurisdiction)})</td>
+          <td>${money.format(row.taxable_income_usd || 0)}</td>
+          <td>${money.format(row.capital_gains_usd || 0)}</td>
+          <td>${money.format(row.capital_losses_usd || 0)}</td>
+          <td>${escapeHtml(String(row.fallback_count ?? 0))}</td>
+        </tr>
+      `,
+    )
+    .join("");
+  multiSummaryPanel.classList.remove("hidden");
+}
+
+async function loadRuleTemplates() {
+  const jurisdictions = selectedJurisdictions();
+  const taxYear = taxYearInput?.value || "2025";
+  try {
+    const response = await fetch(
+      `/rules/templates?jurisdictions=${encodeURIComponent(jurisdictions.join(","))}&tax_year=${encodeURIComponent(taxYear)}`,
+    );
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Failed to load jurisdiction templates.");
+    }
+
+    ruleTemplatesBody.innerHTML = payload
+      .map(
+        (template) => `
+          <article class="guide-item">
+            <div class="guide-item-top">
+              <strong>${escapeHtml(template.label)} (${escapeHtml(template.jurisdiction)})</strong>
+              <span class="signal-chip">v${escapeHtml(template.version)}</span>
+            </div>
+            <p>Fallback: ${escapeHtml(template.fallback_mode)} — ${escapeHtml(template.fallback_description)}</p>
+            <small>Events: ${escapeHtml(template.event_templates.map((item) => `${item.event_type}:${item.tax_treatment}`).join(", "))}</small>
+          </article>
+        `,
+      )
+      .join("");
+  } catch (error) {
+    ruleTemplatesBody.innerHTML = `<span class="status">${escapeHtml(error.message)}</span>`;
   }
 }
 
@@ -662,3 +759,7 @@ loadArtifactHistory();
 loadJurisdictions();
 loadGuideCards();
 loadGuide();
+loadRuleTemplates();
+jurisdictionSelect.addEventListener("change", loadRuleTemplates);
+jurisdictionMultiSelect.addEventListener("change", loadRuleTemplates);
+taxYearInput?.addEventListener("change", loadRuleTemplates);

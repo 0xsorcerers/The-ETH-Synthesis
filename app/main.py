@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import FastAPI, File, Form, UploadFile
+from fastapi import FastAPI, File, Form, Query, UploadFile
 from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.models import GenerateReportRequest
+from app.models import GenerateReportRequest, MultiJurisdictionReportRequest
 from app.services import (
     build_agent_manifest,
     build_autonomy_plan,
@@ -18,10 +18,12 @@ from app.services import (
     list_artifact_bundles,
     list_partner_integrations,
     list_supported_jurisdictions,
+    get_jurisdiction_rule_templates,
     parse_transactions_csv,
     publish_current_work,
     preview_normalization,
     save_artifact_bundle,
+    generate_multi_jurisdiction_report,
 )
 from app.enhanced_api import router as enhanced_router
 from app.insights_api import router as insights_router
@@ -101,6 +103,11 @@ def create_report(request: GenerateReportRequest):
     return generate_report(request)
 
 
+@app.post("/reports/generate-multi")
+def create_multi_jurisdiction_report(request: MultiJurisdictionReportRequest):
+    return generate_multi_jurisdiction_report(request)
+
+
 @app.post("/normalize/preview")
 def normalize_preview(request: GenerateReportRequest):
     return preview_normalization(request)
@@ -135,6 +142,32 @@ async def create_report_from_csv(
     return generate_report(
         GenerateReportRequest(jurisdiction=jurisdiction.upper(), tax_year=tax_year, transactions=transactions)
     )
+
+
+@app.post("/reports/generate-multi-from-csv")
+async def create_multi_jurisdiction_report_from_csv(
+    jurisdictions: str = Form(...),
+    tax_year: int = Form(...),
+    file: UploadFile = File(...),
+):
+    transactions = parse_transactions_csv(await file.read())
+    jurisdiction_list = [code.strip().upper() for code in jurisdictions.split(",") if code.strip()]
+    return generate_multi_jurisdiction_report(
+        MultiJurisdictionReportRequest(
+            jurisdictions=jurisdiction_list,
+            tax_year=tax_year,
+            transactions=transactions,
+        )
+    )
+
+
+@app.get("/rules/templates")
+def jurisdiction_rule_templates(
+    jurisdictions: str = Query(..., description="Comma-separated jurisdiction codes."),
+    tax_year: int = Query(...),
+):
+    jurisdiction_list = [code.strip().upper() for code in jurisdictions.split(",") if code.strip()]
+    return get_jurisdiction_rule_templates(jurisdiction_list, tax_year)
 
 
 @app.post("/normalize/preview-from-csv")

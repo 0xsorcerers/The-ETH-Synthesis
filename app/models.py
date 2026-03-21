@@ -220,6 +220,24 @@ class SupportedJurisdiction(BaseModel):
     tax_years: list[int] = Field(default_factory=list)
 
 
+class RuleTemplateEvent(BaseModel):
+    event_type: EventType
+    tax_treatment: TaxTreatment
+    calculation_method: str
+    confidence: float = Field(ge=0, le=1)
+    notes: str | None = None
+
+
+class JurisdictionRuleTemplate(BaseModel):
+    jurisdiction: str
+    label: str
+    tax_year: int
+    version: str
+    fallback_mode: Literal["traditional_tax_law", "manual_review_required"]
+    fallback_description: str
+    event_templates: list[RuleTemplateEvent]
+
+
 class AgentManifest(BaseModel):
     app_name: str
     version: str
@@ -296,3 +314,31 @@ class GenerateReportRequest(BaseModel):
     jurisdiction: str = Field(min_length=2, max_length=8)
     tax_year: int = Field(ge=2000)
     transactions: list[TransactionRecord]
+
+
+class MultiJurisdictionReportRequest(BaseModel):
+    jurisdictions: list[str] = Field(min_length=1)
+    tax_year: int = Field(ge=2000)
+    transactions: list[TransactionRecord]
+
+
+class JurisdictionReportResult(BaseModel):
+    jurisdiction: str
+    label: str
+    report: TaxReport
+
+
+class MultiJurisdictionComparisonRow(BaseModel):
+    jurisdiction: str
+    label: str
+    taxable_income_usd: float
+    capital_gains_usd: float
+    capital_losses_usd: float
+    fallback_count: int
+
+
+class MultiJurisdictionReport(BaseModel):
+    tax_year: int
+    jurisdictions: list[str]
+    reports: list[JurisdictionReportResult]
+    comparison: list[MultiJurisdictionComparisonRow]
