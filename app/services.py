@@ -65,6 +65,20 @@ REQUIRED_CSV_COLUMNS = [
     "counter_quantity",
     "description",
 ]
+DEFAULT_BASELINE_TAX_YEAR = 2025
+GLOBAL_BASELINE_JURISDICTION_LABEL = "UN-ALIGNED BASELINE"
+GLOBAL_BASELINE_CITATIONS = [
+    {
+        "title": "OECD Crypto-Asset Reporting Framework and Amendments to the Common Reporting Standard (2023)",
+        "url": "https://www.oecd.org/tax/exchange-of-tax-information/crypto-asset-reporting-framework-and-amendments-to-the-common-reporting-standard.htm",
+        "authority": "OECD",
+    },
+    {
+        "title": "UN Handbook on Selected Issues in Taxation of the Extractive Industries by Developing Countries",
+        "url": "https://www.un.org/development/desa/financing/publication/handbook-selected-issues-taxation-extractive-industries-developing-countries",
+        "authority": "United Nations",
+    },
+]
 PARTNER_INTEGRATIONS = [
     PartnerIntegration(
         id="base",
@@ -116,16 +130,67 @@ class Lot:
 
 
 def load_rule_set(jurisdiction: str, tax_year: int) -> RuleSet:
-    return _load_rule_set_cached(jurisdiction.lower(), tax_year)
+    return _load_rule_set_cached(jurisdiction.upper(), tax_year)
 
 
 @lru_cache(maxsize=64)
 def _load_rule_set_cached(jurisdiction: str, tax_year: int) -> RuleSet:
     path = RULES_DIR / f"{jurisdiction.lower()}_{tax_year}.sample.json"
     if not path.exists():
-        raise HTTPException(status_code=404, detail=f"No rule set found for {jurisdiction} {tax_year}")
+        if _is_open_jurisdiction_code(jurisdiction):
+            return _build_global_baseline_ruleset(jurisdiction, tax_year)
+        raise HTTPException(
+            status_code=404,
+            detail=f"No rule set found for {jurisdiction} {tax_year}. Use a 2-3 letter jurisdiction code for UN-aligned baseline rules.",
+        )
     with path.open("r", encoding="utf-8") as handle:
         return RuleSet.model_validate(json.load(handle))
+
+
+def _is_open_jurisdiction_code(jurisdiction: str) -> bool:
+    return bool(re.match(r"^[A-Z]{2,3}$", jurisdiction))
+
+
+def _build_global_baseline_ruleset(jurisdiction: str, tax_year: int) -> RuleSet:
+    baseline_treatments: dict[str, TaxTreatment] = {
+        "income": "taxable_income",
+        "staking": "taxable_income",
+        "airdrop": "taxable_income",
+        "mining": "taxable_income",
+        "swap": "capital_gains",
+        "nft_sale": "capital_gains",
+        "transfer": "non_taxable",
+        "unstaking": "mixed",
+        "lp_deposit": "mixed",
+        "lp_withdrawal": "mixed",
+    }
+    event_rules = [
+        EventRule(
+            eventType=event_type,
+            taxTreatment=tax_treatment,
+            calculationMethod="baseline_fifo_with_manual_review",
+            confidence=0.62 if tax_treatment == "mixed" else 0.68,
+            notes=(
+                "Generated from UN-aligned public-tax baseline. "
+                "Confirm with jurisdiction-specific law before filing."
+            ),
+            citations=GLOBAL_BASELINE_CITATIONS,
+        )
+        for event_type, tax_treatment in baseline_treatments.items()
+    ]
+    return RuleSet(
+        jurisdiction=jurisdiction,
+        taxYear=tax_year,
+        version=f"{GLOBAL_BASELINE_JURISDICTION_LABEL.lower().replace(' ', '-')}-{tax_year}",
+        fallbackPolicy={
+            "mode": "manual_review_required",
+            "description": (
+                "Jurisdiction-specific crypto guidance was not found in local packs. "
+                "Applied UN-aligned baseline estimates anchored to public international tax references."
+            ),
+        },
+        eventRules=event_rules,
+    )
 
 
 def parse_transactions_csv(content: bytes) -> list[TransactionRecord]:
@@ -1248,11 +1313,20 @@ def list_supported_jurisdictions() -> list[SupportedJurisdiction]:
         "US": "United States",
         "UK": "United Kingdom",
         "NG": "Nigeria",
+        "KE": "Kenya",
+        "ALL": "All UN jurisdictions (baseline)",
     }
     jurisdictions = [
         SupportedJurisdiction(code=code, label=labels.get(code, code), tax_years=sorted(set(years), reverse=True))
         for code, years in sorted(year_map.items())
     ]
+    jurisdictions.append(
+        SupportedJurisdiction(
+            code="ALL",
+            label=labels["ALL"],
+            tax_years=[DEFAULT_BASELINE_TAX_YEAR],
+        )
+    )
     return jurisdictions
 
 
@@ -1262,6 +1336,7 @@ def build_agent_manifest() -> AgentManifest:
         version="0.2.0",
         workflow=[
             "Call /jurisdictions to discover supported country codes and available tax years.",
+            "For jurisdictions not explicitly listed, use a 2-3 letter country code to trigger UN-aligned baseline rules.",
             "Upload CSV to /normalize/preview-from-csv and inspect event_type + confidence first.",
             "Run /reports/generate-from-csv for estimate output and review fallback_count before export.",
             "Export report with /reports/export-markdown-from-csv or /reports/export-html-from-csv.",
