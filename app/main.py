@@ -23,15 +23,21 @@ from app.services import (
     preview_normalization,
     save_artifact_bundle,
 )
+from app.enhanced_api import router as enhanced_router
+from app.insights_api import router as insights_router
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 app = FastAPI(
     title="Skynet Tax Engine",
-    version="0.1.0",
-    description="Jurisdiction-aware crypto tax estimation MVP for The Synthesis hackathon.",
+    version="2.1.0",
+    description="Jurisdiction-aware crypto tax estimation with async processing, agent-first architecture, and Moltbook agent-to-agent collaboration for global tax knowledge expansion.",
 )
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+# Include enhanced API routes
+app.include_router(enhanced_router)
+app.include_router(insights_router)
 
 
 @app.get("/", include_in_schema=False)

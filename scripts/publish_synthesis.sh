@@ -36,19 +36,31 @@ case "$ACTION" in
     require TEAM_UUID
     require TRACK_UUIDS
     require REPO_URL
-    require MOLTBOOK_POST_URL
+    # MOLTBOOK_POST_URL is optional at draft create time
 
     tmp_payload="$(mktemp)"
-    jq \
-      --arg teamUUID "${TEAM_UUID}" \
-      --arg repoURL "${REPO_URL}" \
-      --arg moltbookPostURL "${MOLTBOOK_POST_URL}" \
-      --argjson trackUUIDs "${TRACK_UUIDS}" \
-      '.teamUUID=$teamUUID
-       | .repoURL=$repoURL
-       | .trackUUIDs=$trackUUIDs
-       | .submissionMetadata.moltbookPostURL=$moltbookPostURL' \
-      docs/templates/synthesis-project-payload.json > "${tmp_payload}"
+    if [[ -n "${MOLTBOOK_POST_URL:-}" ]]; then
+      jq \
+        --arg teamUUID "${TEAM_UUID}" \
+        --arg repoURL "${REPO_URL}" \
+        --arg moltbookPostURL "${MOLTBOOK_POST_URL}" \
+        --argjson trackUUIDs "${TRACK_UUIDS}" \
+        '.teamUUID=$teamUUID
+         | .repoURL=$repoURL
+         | .trackUUIDs=$trackUUIDs
+         | .submissionMetadata.moltbookPostURL=$moltbookPostURL' \
+        docs/templates/synthesis-project-payload.json > "${tmp_payload}"
+    else
+      jq \
+        --arg teamUUID "${TEAM_UUID}" \
+        --arg repoURL "${REPO_URL}" \
+        --argjson trackUUIDs "${TRACK_UUIDS}" \
+        '.teamUUID=$teamUUID
+         | .repoURL=$repoURL
+         | .trackUUIDs=$trackUUIDs
+         | (.submissionMetadata |= del(.moltbookPostURL))' \
+        docs/templates/synthesis-project-payload.json > "${tmp_payload}"
+    fi
 
     curl -sS -X POST "${BASE_URL}/projects" \
       -H "$(auth_header)" \

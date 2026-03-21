@@ -1,0 +1,622 @@
+<!-- Moltbook Insights Component - Agent Collaboration UI -->
+<section id="insights-section" class="insights-panel">
+    <h2>🤖 Agent Collaboration Hub</h2>
+    <p class="subtitle">Expand tax knowledge worldwide through agent-to-agent collaboration on <a href="https://www.moltbook.com" target="_blank">Moltbook</a></p>
+
+    <div class="insights-grid">
+        <!-- Coverage Status Card -->
+        <div class="insight-card">
+            <h3>🌍 Global Coverage Status</h3>
+            <div id="coverage-stats">
+                <div class="stat-row">
+                    <span class="stat-label">Target:</span>
+                    <span class="stat-value">193 UN Member States</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Completed:</span>
+                    <span class="stat-value" id="completed-count">Loading...</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">In Progress:</span>
+                    <span class="stat-value" id="pending-count">Loading...</span>
+                </div>
+            </div>
+            <button onclick="loadCoverageStatus()" class="btn-secondary">Refresh Status</button>
+        </div>
+
+        <!-- Request Knowledge Card -->
+        <div class="insight-card">
+            <h3>📊 Request Tax Knowledge</h3>
+            <form id="knowledge-request-form">
+                <div class="form-group">
+                    <label for="jurisdiction">Jurisdiction:</label>
+                    <input type="text" id="jurisdiction" placeholder="e.g., Germany, Japan, Brazil" required>
+                </div>
+                <div class="form-group">
+                    <label for="urgency">Urgency:</label>
+                    <select id="urgency">
+                        <option value="normal">Normal</option>
+                        <option value="high">High</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="questions">Specific Questions (one per line):</label>
+                    <textarea id="questions" rows="4" placeholder="What is the tax treatment for crypto capital gains?
+Are crypto-to-crypto trades taxable?
+What cost basis methods are accepted?"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Post to Moltbook</button>
+            </form>
+            <div id="request-result" class="result-box"></div>
+        </div>
+
+        <!-- Expansion Plan Card -->
+        <div class="insight-card wide">
+            <h3>📈 Expansion Plan</h3>
+            <p>Generate knowledge requests for tiered expansion to all UN member states</p>
+            <div class="tier-buttons">
+                <button onclick="startBatchRequest('tier_1_high_crypto_adoption')" class="btn-tier tier-1">Tier 1: High Adoption (10)</button>
+                <button onclick="startBatchRequest('tier_2_active_crypto_markets')" class="btn-tier tier-2">Tier 2: Active Markets (22)</button>
+                <button onclick="startBatchRequest('tier_3_emerging_markets')" class="btn-tier tier-3">Tier 3: Emerging (15)</button>
+                <button onclick="startBatchRequest('tier_4_developing_coverage')" class="btn-tier tier-4">Tier 4: Developing (16)</button>
+                <button onclick="startBatchRequest('all')" class="btn-tier tier-all">All Tiers (63)</button>
+            </div>
+            <div id="batch-result" class="result-box"></div>
+        </div>
+
+        <!-- Auto Expansion Card -->
+        <div class="insight-card">
+            <h3>⚡ Auto-Expansion Mode</h3>
+            <p>Automatically search, request, and integrate tax knowledge continuously</p>
+            <div class="auto-controls">
+                <button onclick="triggerAutoExpansion()" class="btn-primary">Start Auto-Expansion</button>
+                <div id="auto-status" class="status-indicator">Status: Idle</div>
+            </div>
+        </div>
+
+        <!-- Agent Feed Card -->
+        <div class="insight-card">
+            <h3>📰 Moltbook Feed</h3>
+            <p>Latest posts from the agent community</p>
+            <div id="agent-feed" class="feed-container">
+                <p class="placeholder">Click refresh to load feed...</p>
+            </div>
+            <button onclick="loadAgentFeed()" class="btn-secondary">Refresh Feed</button>
+        </div>
+
+        <!-- Agent Heartbeat Card (Hazel_OC Inspired) -->
+        <div class="insight-card wide">
+            <h3>💓 Agent Heartbeat</h3>
+            <p>Simple cron-style rituals that watch the world for you. "One message, delivered before coffee." - Hazel_OC</p>
+            <div class="heartbeat-controls">
+                <div class="hb-status-row">
+                    <button onclick="runHeartbeat()" class="btn-primary">Run Heartbeat Now</button>
+                    <button onclick="getDailyChangelog()" class="btn-secondary">Daily Changelog</button>
+                    <button onclick="startContinuousHeartbeat()" class="btn-tier tier-1">Start Continuous</button>
+                </div>
+                <div id="heartbeat-status" class="status-indicator">
+                    Last run: Never | Pending checks: Unknown
+                </div>
+                <div id="heartbeat-changelog" class="changelog-container" style="display:none; margin-top:15px; padding:15px; background:#f8f9fa; border-radius:6px; white-space:pre-wrap;"></div>
+            </div>
+        </div>
+
+        <!-- Search Insights Card -->
+        <div class="insight-card wide">
+            <h3>🔍 Search Existing Insights</h3>
+            <div class="search-row">
+                <input type="text" id="search-query" placeholder="Search for tax knowledge...">
+                <select id="search-jurisdiction">
+                    <option value="">All Jurisdictions</option>
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Germany">Germany</option>
+                    <option value="Japan">Japan</option>
+                    <option value="Singapore">Singapore</option>
+                </select>
+                <button onclick="searchInsights()" class="btn-primary">Search</button>
+            </div>
+            <div id="search-results" class="results-container"></div>
+        </div>
+    </div>
+</section>
+
+<style>
+.insights-panel {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.insights-panel h2 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #7f8c8d;
+    margin-bottom: 30px;
+}
+
+.subtitle a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.insight-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.insight-card.wide {
+    grid-column: 1 / -1;
+}
+
+.insight-card h3 {
+    margin-top: 0;
+    color: #34495e;
+    font-size: 1.2em;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.stat-label {
+    font-weight: 500;
+    color: #7f8c8d;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+}
+
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-secondary:hover {
+    background: #7f8c8d;
+}
+
+.tier-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-tier {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    color: white;
+}
+
+.tier-1 { background: #27ae60; }
+.tier-2 { background: #f39c12; }
+.tier-3 { background: #e67e22; }
+.tier-4 { background: #9b59b6; }
+.tier-all { background: #34495e; }
+
+.result-box {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 6px;
+    display: none;
+}
+
+.result-box.success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    display: block;
+}
+
+.result-box.error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    display: block;
+}
+
+.status-indicator {
+    margin-top: 15px;
+    padding: 10px 15px;
+    border-radius: 6px;
+    background: #ecf0f1;
+    font-weight: 500;
+}
+
+.status-indicator.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.feed-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 15px 0;
+}
+
+.feed-item {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.feed-item:last-child {
+    border-bottom: none;
+}
+
+.search-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.search-row input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.search-row select {
+    width: 200px;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.results-container {
+    margin-top: 20px;
+}
+
+.insight-result {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.insight-result .agent-name {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.insight-result .jurisdiction {
+    color: #7f8c8d;
+    font-size: 0.9em;
+}
+
+.insight-result .content {
+    margin-top: 10px;
+    line-height: 1.5;
+}
+
+.placeholder {
+    color: #95a5a6;
+    font-style: italic;
+}
+</style>
+
+<script>
+// API base URL
+const API_BASE = '/insights';
+
+// Load coverage status
+async function loadCoverageStatus() {
+    try {
+        const response = await fetch(`${API_BASE}/coverage-status`);
+        const data = await response.json();
+        
+        const completed = data.overall_progress.completed;
+        const inProgress = data.overall_progress.in_progress;
+        
+        document.getElementById('completed-count').textContent = completed;
+        document.getElementById('pending-count').textContent = inProgress;
+    } catch (error) {
+        console.error('Failed to load coverage status:', error);
+        document.getElementById('completed-count').textContent = 'Error';
+        document.getElementById('pending-count').textContent = 'Error';
+    }
+}
+
+// Handle knowledge request form
+document.getElementById('knowledge-request-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const jurisdiction = document.getElementById('jurisdiction').value;
+    const urgency = document.getElementById('urgency').value;
+    const questionsText = document.getElementById('questions').value;
+    const questions = questionsText.split('\n').filter(q => q.trim());
+    
+    const resultBox = document.getElementById('request-result');
+    resultBox.style.display = 'block';
+    resultBox.className = 'result-box';
+    resultBox.textContent = 'Posting to Moltbook...';
+    
+    try {
+        const response = await fetch(`${API_BASE}/request`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jurisdiction,
+                urgency,
+                specific_questions: questions,
+                tax_year: 2025
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            resultBox.className = 'result-box success';
+            resultBox.innerHTML = `
+                <strong>✅ Posted Successfully!</strong><br>
+                Request ID: ${data.request_id}<br>
+                Status: ${data.status}
+            `;
+        } else {
+            resultBox.className = 'result-box error';
+            resultBox.textContent = `Error: ${data.detail || 'Failed to post'}`;
+        }
+    } catch (error) {
+        resultBox.className = 'result-box error';
+        resultBox.textContent = `Error: ${error.message}`;
+    }
+});
+
+// Start batch request
+async function startBatchRequest(tier) {
+    const resultBox = document.getElementById('batch-result');
+    resultBox.style.display = 'block';
+    resultBox.className = 'result-box';
+    resultBox.textContent = `Starting batch request for ${tier}...`;
+    
+    try {
+        const response = await fetch(`${API_BASE}/batch-request/${tier}`, {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            resultBox.className = 'result-box success';
+            resultBox.innerHTML = `
+                <strong>✅ Batch Request Started!</strong><br>
+                ${data.message}<br>
+                Estimated Requests: ${data.estimated_requests}<br>
+                Status: ${data.status}
+            `;
+        } else {
+            resultBox.className = 'result-box error';
+            resultBox.textContent = `Error: ${data.detail || 'Failed to start'}`;
+        }
+    } catch (error) {
+        resultBox.className = 'result-box error';
+        resultBox.textContent = `Error: ${error.message}`;
+    }
+}
+
+// Trigger auto-expansion
+async function triggerAutoExpansion() {
+    const statusDiv = document.getElementById('auto-status');
+    statusDiv.textContent = 'Status: Starting...';
+    
+    try {
+        const response = await fetch(`${API_BASE}/auto-expand`, {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            statusDiv.textContent = 'Status: Active - Expanding to all 193 jurisdictions';
+            statusDiv.className = 'status-indicator active';
+        } else {
+            statusDiv.textContent = `Status: Error - ${data.detail || 'Failed'}`;
+        }
+    } catch (error) {
+        statusDiv.textContent = `Status: Error - ${error.message}`;
+    }
+}
+
+// Load agent feed
+async function loadAgentFeed() {
+    const feedContainer = document.getElementById('agent-feed');
+    feedContainer.innerHTML = '<p class="placeholder">Loading feed...</p>';
+    
+    try {
+        const response = await fetch(`${API_BASE}/feed`);
+        const data = await response.json();
+        
+        if (data.posts && data.posts.length > 0) {
+            feedContainer.innerHTML = data.posts.map(post => `
+                <div class="feed-item">
+                    <strong>${post.title || 'Untitled'}</strong>
+                    <p>${(post.content || '').substring(0, 100)}...</p>
+                    <small>By: ${post.author?.name || 'Unknown'}</small>
+                </div>
+            `).join('');
+        } else {
+            feedContainer.innerHTML = '<p class="placeholder">No posts found. Try refreshing later.</p>';
+        }
+    } catch (error) {
+        feedContainer.innerHTML = `<p class="placeholder">Error loading feed: ${error.message}</p>`;
+    }
+}
+
+// Search insights
+async function searchInsights() {
+    const query = document.getElementById('search-query').value;
+    const jurisdiction = document.getElementById('search-jurisdiction').value;
+    const resultsContainer = document.getElementById('search-results');
+    
+    resultsContainer.innerHTML = '<p class="placeholder">Searching...</p>';
+    
+    try {
+        const response = await fetch(`${API_BASE}/search`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jurisdiction: jurisdiction || query,
+                min_confidence: 0.6
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.length > 0) {
+            resultsContainer.innerHTML = data.map(insight => `
+                <div class="insight-result">
+                    <div class="agent-name">${insight.agent_name}</div>
+                    <div class="jurisdiction">${insight.jurisdiction} | ${insight.insight_type}</div>
+                    <div class="content">${insight.content}</div>
+                    <small>Confidence: ${(insight.confidence * 100).toFixed(0)}% | Sources: ${insight.sources.join(', ')}</small>
+                </div>
+            `).join('');
+        } else {
+            resultsContainer.innerHTML = '<p class="placeholder">No insights found. Try a different search or request knowledge.</p>';
+        }
+    } catch (error) {
+        resultsContainer.innerHTML = `<p class="placeholder">Error searching: ${error.message}</p>`;
+    }
+}
+
+// Load initial data
+loadCoverageStatus();
+loadHeartbeatStatus();
+
+// Heartbeat functions
+async function loadHeartbeatStatus() {
+    try {
+        const response = await fetch(`${API_BASE}/heartbeat/status`);
+        const data = await response.json();
+        
+        const statusDiv = document.getElementById('heartbeat-status');
+        statusDiv.textContent = `Last run: ${data.last_full_heartbeat || 'Never'} | Pending: ${data.pending_checks}/${data.total_checks} checks`;
+    } catch (error) {
+        console.error('Failed to load heartbeat status:', error);
+    }
+}
+
+async function runHeartbeat() {
+    const statusDiv = document.getElementById('heartbeat-status');
+    statusDiv.textContent = 'Running heartbeat...';
+    
+    try {
+        const response = await fetch(`${API_BASE}/heartbeat/run`, { method: 'POST' });
+        const data = await response.json();
+        
+        if (response.ok) {
+            statusDiv.textContent = `✅ Completed ${data.checks_run} checks | Last: ${data.last_heartbeat}`;
+            loadHeartbeatStatus();  // Refresh
+        } else {
+            statusDiv.textContent = `Error: ${data.detail}`;
+        }
+    } catch (error) {
+        statusDiv.textContent = `Error: ${error.message}`;
+    }
+}
+
+async function getDailyChangelog() {
+    const changelogDiv = document.getElementById('heartbeat-changelog');
+    changelogDiv.style.display = 'block';
+    changelogDiv.textContent = 'Loading changelog...';
+    
+    try {
+        const response = await fetch(`${API_BASE}/heartbeat/daily`);
+        const data = await response.json();
+        
+        if (response.ok) {
+            changelogDiv.textContent = data.changelog;
+        } else {
+            changelogDiv.textContent = `Error: ${data.detail}`;
+        }
+    } catch (error) {
+        changelogDiv.textContent = `Error: ${error.message}`;
+    }
+}
+
+async function startContinuousHeartbeat() {
+    const statusDiv = document.getElementById('heartbeat-status');
+    statusDiv.textContent = 'Starting continuous heartbeat...';
+    
+    try {
+        const response = await fetch(`${API_BASE}/heartbeat/continuous`, { method: 'POST' });
+        const data = await response.json();
+        
+        if (response.ok) {
+            statusDiv.textContent = `✅ ${data.message} (${data.interval})`;
+            statusDiv.className = 'status-indicator active';
+        } else {
+            statusDiv.textContent = `Error: ${data.detail}`;
+        }
+    } catch (error) {
+        statusDiv.textContent = `Error: ${error.message}`;
+    }
+}
+</script>

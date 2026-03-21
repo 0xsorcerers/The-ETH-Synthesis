@@ -202,6 +202,29 @@ h1 {
   transform: perspective(680px) rotateX(7deg);
 }
 
+.nav-links {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.btn-agent {
+  display: inline-block;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-agent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
 .guide-grid span {
   display: inline-block;
   margin-bottom: 8px;
