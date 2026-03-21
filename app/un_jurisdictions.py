@@ -301,6 +301,366 @@ class UNJurisdictionDatabase:
                 agent_notes="Bank of Botswana cautions on crypto but no specific tax rules."
             ),
             
+            # Additional African countries with basic info
+            UNJurisdiction(
+                name="Burkina Faso", iso_code="BF", iso_numeric="854", un_m49="854",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Burundi", iso_code="BI", iso_numeric="108", un_m49="108",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Burundi Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Cameroon", iso_code="CM", iso_numeric="120", un_m49="120",
+                region="Africa", subregion="Middle Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Cape Verde", iso_code="CV", iso_numeric="132", un_m49="132",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direcção Geral dos Impostos",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Central African Republic", iso_code="CF", iso_numeric="140", un_m49="140",
+                region="Africa", subregion="Middle Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Chad", iso_code="TD", iso_numeric="148", un_m49="148",
+                region="Africa", subregion="Middle Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Comoros", iso_code="KM", iso_numeric="174", un_m49="174",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Congo", iso_code="CG", iso_numeric="178", un_m49="178",
+                region="Africa", subregion="Middle Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Democratic Republic of Congo", iso_code="CD", iso_numeric="180", un_m49="180",
+                region="Africa", subregion="Middle Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Djibouti", iso_code="DJ", iso_numeric="262", un_m49="262",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Equatorial Guinea", iso_code="GQ", iso_numeric="226", un_m49="226",
+                region="Africa", subregion="Middle Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Eritrea", iso_code="ER", iso_numeric="232", un_m49="232",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Eritrea Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Eswatini", iso_code="SZ", iso_numeric="748", un_m49="748",
+                region="Africa", subregion="Southern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Eswatini Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Ethiopia", iso_code="ET", iso_numeric="231", un_m49="231",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ethiopian Revenue and Customs Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Gabon", iso_code="GA", iso_numeric="266", un_m49="266",
+                region="Africa", subregion="Middle Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Gambia", iso_code="GM", iso_numeric="270", un_m49="270",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Gambia Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Guinea", iso_code="GN", iso_numeric="324", un_m49="324",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Guinea-Bissau", iso_code="GW", iso_numeric="624", un_m49="624",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Ivory Coast", iso_code="CI", iso_numeric="384", un_m49="384",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Lesotho", iso_code="LS", iso_numeric="426", un_m49="426",
+                region="Africa", subregion="Southern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Lesotho Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Liberia", iso_code="LR", iso_numeric="430", un_m49="430",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Liberia Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Libya", iso_code="LY", iso_numeric="434", un_m49="434",
+                region="Africa", subregion="Northern Africa",
+                crypto_classification=TaxTreatmentCategory.BANNED,
+                primary_tax_authority="Libyan Tax Authority",
+                guidance_level=ComplianceLevel.RESTRICTIVE,
+                agent_notes="Central Bank of Libya prohibits crypto transactions."
+            ),
+            
+            UNJurisdiction(
+                name="Madagascar", iso_code="MG", iso_numeric="450", un_m49="450",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Malawi", iso_code="MW", iso_numeric="454", un_m49="454",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Malawi Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Mali", iso_code="ML", iso_numeric="466", un_m49="466",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Mauritania", iso_code="MR", iso_numeric="478", un_m49="478",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.BANNED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.RESTRICTIVE,
+                agent_notes="Central Bank warns against crypto use."
+            ),
+            
+            UNJurisdiction(
+                name="Mauritius", iso_code="MU", iso_numeric="480", un_m49="480",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Mauritius Revenue Authority",
+                capital_gains_taxable=False,
+                capital_gains_rate="0%",
+                guidance_level=ComplianceLevel.MODERATE,
+                agent_notes="Financial Services Commission regulates crypto. Generally tax-friendly environment."
+            ),
+            
+            UNJurisdiction(
+                name="Mozambique", iso_code="MZ", iso_numeric="508", un_m49="508",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direcção Nacional dos Impostos",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Namibia", iso_code="NA", iso_numeric="516", un_m49="516",
+                region="Africa", subregion="Southern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Inland Revenue Department",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Niger", iso_code="NE", iso_numeric="562", un_m49="562",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Rwanda", iso_code="RW", iso_numeric="646", un_m49="646",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Rwanda Revenue Authority",
+                guidance_level=ComplianceLevel.LIMITED,
+                agent_notes="National Bank of Rwanda cautions on crypto. Developing fintech regulations."
+            ),
+            
+            UNJurisdiction(
+                name="Sao Tome and Principe", iso_code="ST", iso_numeric="678", un_m49="678",
+                region="Africa", subregion="Middle Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direcção do Imposto",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Senegal", iso_code="SN", iso_numeric="686", un_m49="686",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Seychelles", iso_code="SC", iso_numeric="690", un_m49="690",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Seychelles Revenue Commission",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Sierra Leone", iso_code="SL", iso_numeric="694", un_m49="694",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="National Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Somalia", iso_code="SO", iso_numeric="706", un_m49="706",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="South Sudan", iso_code="SS", iso_numeric="728", un_m49="728",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Sudan", iso_code="SD", iso_numeric="729", un_m49="729",
+                region="Africa", subregion="Northern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Tanzania", iso_code="TZ", iso_numeric="834", un_m49="834",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Tanzania Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Togo", iso_code="TG", iso_numeric="768", un_m49="768",
+                region="Africa", subregion="Western Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Tunisia", iso_code="TN", iso_numeric="788", un_m49="788",
+                region="Africa", subregion="Northern Africa",
+                crypto_classification=TaxTreatmentCategory.BANNED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.RESTRICTIVE,
+                agent_notes="Central Bank prohibits crypto transactions."
+            ),
+            
+            UNJurisdiction(
+                name="Uganda", iso_code="UG", iso_numeric="800", un_m49="800",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Uganda Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Zambia", iso_code="ZM", iso_numeric="894", un_m49="894",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Zambia Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Zimbabwe", iso_code="ZW", iso_numeric="716", un_m49="716",
+                region="Africa", subregion="Eastern Africa",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Zimbabwe Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
             # ... Continue with all 54 African countries
         ]
         
@@ -554,6 +914,312 @@ class UNJurisdictionDatabase:
                 agent_notes="No capital gains tax generally. Crypto gains may be income if trading activity."
             ),
             
+            # Additional Asian countries
+            UNJurisdiction(
+                name="Afghanistan", iso_code="AF", iso_numeric="004", un_m49="004",
+                region="Asia", subregion="Southern Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Afghanistan Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Armenia", iso_code="AM", iso_numeric="051", un_m49="051",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="State Revenue Committee",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Azerbaijan", iso_code="AZ", iso_numeric="031", un_m49="031",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Taxes",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Bahrain", iso_code="BH", iso_numeric="048", un_m49="048",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="National Bureau for Revenue",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Bangladesh", iso_code="BD", iso_numeric="050", un_m49="050",
+                region="Asia", subregion="Southern Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="National Board of Revenue",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Bhutan", iso_code="BT", iso_numeric="064", un_m49="064",
+                region="Asia", subregion="Southern Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Department of Revenue and Customs",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Brunei", iso_code="BN", iso_numeric="096", un_m49="096",
+                region="Asia", subregion="South-Eastern Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Cambodia", iso_code="KH", iso_numeric="116", un_m49="116",
+                region="Asia", subregion="South-Eastern Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="General Department of Taxation",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Georgia", iso_code="GE", iso_numeric="268", un_m49="268",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Revenue Service",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Iran", iso_code="IR", iso_numeric="364", un_m49="364",
+                region="Asia", subregion="Southern Asia",
+                crypto_classification=TaxTreatmentCategory.BANNED,
+                primary_tax_authority="Iranian National Tax Administration",
+                guidance_level=ComplianceLevel.RESTRICTIVE,
+                agent_notes="Central Bank of Iran bans crypto trading. Only mining permitted with government license."
+            ),
+            
+            UNJurisdiction(
+                name="Iraq", iso_code="IQ", iso_numeric="368", un_m49="368",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.BANNED,
+                primary_tax_authority="General Commission for Taxes",
+                guidance_level=ComplianceLevel.RESTRICTIVE,
+                agent_notes="Central Bank prohibits crypto transactions."
+            ),
+            
+            UNJurisdiction(
+                name="Israel", iso_code="IL", iso_numeric="376", un_m49="376",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Israel Tax Authority",
+                capital_gains_taxable=True,
+                capital_gains_rate="25% flat",
+                guidance_level=ComplianceLevel.MODERATE,
+                agent_notes="Tax Authority treats crypto as property. Capital gains tax applies."
+            ),
+            
+            UNJurisdiction(
+                name="Jordan", iso_code="JO", iso_numeric="400", un_m49="400",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Income and Sales Tax Department",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Kazakhstan", iso_code="KZ", iso_numeric="398", un_m49="398",
+                region="Asia", subregion="Central Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="State Revenue Committee",
+                guidance_level=ComplianceLevel.LIMITED,
+                agent_notes="Mining permitted with registration. Tax treatment unclear."
+            ),
+            
+            UNJurisdiction(
+                name="Kuwait", iso_code="KW", iso_numeric="414", un_m49="414",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Kyrgyzstan", iso_code="KG", iso_numeric="417", un_m49="417",
+                region="Asia", subregion="Central Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="State Tax Service",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Laos", iso_code="LA", iso_numeric="418", un_m49="418",
+                region="Asia", subregion="South-Eastern Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Lebanon", iso_code="LB", iso_numeric="422", un_m49="422",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Maldives", iso_code="MV", iso_numeric="462", un_m49="462",
+                region="Asia", subregion="Southern Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Maldives Inland Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Mongolia", iso_code="MN", iso_numeric="496", un_m49="496",
+                region="Asia", subregion="Eastern Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="General Department of Taxation",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Myanmar", iso_code="MM", iso_numeric="104", un_m49="104",
+                region="Asia", subregion="South-Eastern Asia",
+                crypto_classification=TaxTreatmentCategory.BANNED,
+                primary_tax_authority="Internal Revenue Department",
+                guidance_level=ComplianceLevel.RESTRICTIVE,
+                agent_notes="Central Bank prohibits crypto transactions."
+            ),
+            
+            UNJurisdiction(
+                name="Nepal", iso_code="NP", iso_numeric="524", un_m49="524",
+                region="Asia", subregion="Southern Asia",
+                crypto_classification=TaxTreatmentCategory.BANNED,
+                primary_tax_authority="Inland Revenue Department",
+                guidance_level=ComplianceLevel.RESTRICTIVE,
+                agent_notes="Nepal Rastra Bank prohibits crypto transactions."
+            ),
+            
+            UNJurisdiction(
+                name="North Korea", iso_code="KP", iso_numeric="408", un_m49="408",
+                region="Asia", subregion="Eastern Asia",
+                crypto_classification=TaxTreatmentCategory.BANNED,
+                primary_tax_authority="N/A",
+                guidance_level=ComplianceLevel.RESTRICTIVE,
+                agent_notes="No legal crypto framework. Extreme caution."
+            ),
+            
+            UNJurisdiction(
+                name="Oman", iso_code="OM", iso_numeric="512", un_m49="512",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Secretariat General for Taxation",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Pakistan", iso_code="PK", iso_numeric="586", un_m49="586",
+                region="Asia", subregion="Southern Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Federal Board of Revenue",
+                guidance_level=ComplianceLevel.LIMITED,
+                agent_notes="SBP bans banks from crypto. P2P trading continues."
+            ),
+            
+            UNJurisdiction(
+                name="Philippines", iso_code="PH", iso_numeric="608", un_m49="608",
+                region="Asia", subregion="South-Eastern Asia",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Bureau of Internal Revenue",
+                capital_gains_taxable=True,
+                guidance_level=ComplianceLevel.MODERATE,
+                agent_notes="SEC and BSP regulate crypto exchanges. Income tax applies."
+            ),
+            
+            UNJurisdiction(
+                name="Qatar", iso_code="QA", iso_numeric="634", un_m49="634",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.BANNED,
+                primary_tax_authority="General Tax Authority",
+                guidance_level=ComplianceLevel.RESTRICTIVE,
+                agent_notes="Qatar Central Bank prohibits crypto trading."
+            ),
+            
+            UNJurisdiction(
+                name="Saudi Arabia", iso_code="SA", iso_numeric="682", un_m49="682",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Zakat, Tax and Customs Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Sri Lanka", iso_code="LK", iso_numeric="144", un_m49="144",
+                region="Asia", subregion="Southern Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Inland Revenue Department",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Syria", iso_code="SY", iso_numeric="760", un_m49="760",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Tajikistan", iso_code="TJ", iso_numeric="762", un_m49="762",
+                region="Asia", subregion="Central Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Tax Committee",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Timor-Leste", iso_code="TL", iso_numeric="626", un_m49="626",
+                region="Asia", subregion="South-Eastern Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Turkey", iso_code="TR", iso_numeric="792", un_m49="792",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Revenue Administration",
+                capital_gains_taxable=True,
+                capital_gains_rate="15-22%",
+                guidance_level=ComplianceLevel.MODERATE,
+                agent_notes="Crypto considered assets. Capital gains taxed. High trading volume market."
+            ),
+            
+            UNJurisdiction(
+                name="Turkmenistan", iso_code="TM", iso_numeric="795", un_m49="795",
+                region="Asia", subregion="Central Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Uzbekistan", iso_code="UZ", iso_numeric="860", un_m49="860",
+                region="Asia", subregion="Central Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="State Tax Committee",
+                guidance_level=ComplianceLevel.LIMITED,
+                agent_notes="Regulatory framework developing."
+            ),
+            
+            UNJurisdiction(
+                name="Yemen", iso_code="YE", iso_numeric="887", un_m49="887",
+                region="Asia", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
             # ... Continue with all 48 Asian countries
         ]
         
@@ -776,6 +1442,379 @@ class UNJurisdictionDatabase:
                 agent_notes="26% substitute tax on crypto gains. 'Crypto-assets' specifically defined in law."
             ),
             
+            # Additional European countries
+            UNJurisdiction(
+                name="Albania", iso_code="AL", iso_numeric="008", un_m49="008",
+                region="Europe", subregion="Southern Europe",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="General Directorate of Taxation",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Andorra", iso_code="AD", iso_numeric="020", un_m49="020",
+                region="Europe", subregion="Southern Europe",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Austria", iso_code="AT", iso_numeric="040", un_m49="040",
+                region="Europe", subregion="Western Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Ministry of Finance",
+                capital_gains_taxable=True,
+                capital_gains_rate="27.5% flat",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Capital gains tax on crypto applies. Crypto considered as other economic assets."
+            ),
+            
+            UNJurisdiction(
+                name="Belarus", iso_code="BY", iso_numeric="112", un_m49="112",
+                region="Europe", subregion="Eastern Europe",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Taxes and Duties",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Belgium", iso_code="BE", iso_numeric="056", un_m49="056",
+                region="Europe", subregion="Western Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="FPS Finance",
+                capital_gains_taxable=True,
+                capital_gains_rate="33% (professional) / 0% (private if held >1 year)",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Private sales tax-free if held >1 year. Professional trading taxed."
+            ),
+            
+            UNJurisdiction(
+                name="Bosnia and Herzegovina", iso_code="BA", iso_numeric="070", un_m49="070",
+                region="Europe", subregion="Southern Europe",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Indirect Taxation Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Bulgaria", iso_code="BG", iso_numeric="100", un_m49="100",
+                region="Europe", subregion="Eastern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="National Revenue Agency",
+                capital_gains_taxable=True,
+                capital_gains_rate="10% flat",
+                guidance_level=ComplianceLevel.MODERATE
+            ),
+            
+            UNJurisdiction(
+                name="Croatia", iso_code="HR", iso_numeric="191", un_m49="191",
+                region="Europe", subregion="Southern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Tax Administration",
+                capital_gains_taxable=True,
+                capital_gains_rate="10% (or 12%/18%/24% depending on amount)",
+                guidance_level=ComplianceLevel.MODERATE
+            ),
+            
+            UNJurisdiction(
+                name="Cyprus", iso_code="CY", iso_numeric="196", un_m49="196",
+                region="Europe", subregion="Western Asia",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Tax Department",
+                capital_gains_taxable=True,
+                guidance_level=ComplianceLevel.MODERATE
+            ),
+            
+            UNJurisdiction(
+                name="Czech Republic", iso_code="CZ", iso_numeric="203", un_m49="203",
+                region="Europe", subregion="Eastern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Financial Administration",
+                capital_gains_taxable=True,
+                capital_gains_rate="15% (progressive up to 23%)",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Crypto taxed as other property. Annual income over CZK 100,000 taxable."
+            ),
+            
+            UNJurisdiction(
+                name="Denmark", iso_code="DK", iso_numeric="208", un_m49="208",
+                region="Europe", subregion="Northern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Danish Tax Agency (SKAT)",
+                capital_gains_taxable=True,
+                capital_gains_rate="27% (up to DKK 56,700) / 42% above",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Crypto gains taxed as capital income. 'Skatteguiden' provides guidance."
+            ),
+            
+            UNJurisdiction(
+                name="Estonia", iso_code="EE", iso_numeric="233", un_m49="233",
+                region="Europe", subregion="Northern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Tax and Customs Board",
+                capital_gains_taxable=True,
+                capital_gains_rate="20%",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Crypto gains taxed. Business crypto income taxed as corporate income."
+            ),
+            
+            UNJurisdiction(
+                name="Finland", iso_code="FI", iso_numeric="246", un_m49="246",
+                region="Europe", subregion="Northern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Finnish Tax Administration",
+                capital_gains_taxable=True,
+                capital_gains_rate="30% (up to €30,000) / 34% above",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Crypto gains taxed as capital income. Mining treated as earned income."
+            ),
+            
+            UNJurisdiction(
+                name="Greece", iso_code="GR", iso_numeric="300", un_m49="300",
+                region="Europe", subregion="Southern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Independent Authority for Public Revenue",
+                capital_gains_taxable=True,
+                capital_gains_rate="15%",
+                guidance_level=ComplianceLevel.MODERATE,
+                agent_notes="Crypto gains taxable. Limited official guidance available."
+            ),
+            
+            UNJurisdiction(
+                name="Hungary", iso_code="HU", iso_numeric="348", un_m49="348",
+                region="Europe", subregion="Eastern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="National Tax and Customs Administration",
+                capital_gains_taxable=True,
+                capital_gains_rate="15%",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Personal income tax on crypto gains. Social contribution may apply."
+            ),
+            
+            UNJurisdiction(
+                name="Iceland", iso_code="IS", iso_numeric="352", un_m49="352",
+                region="Europe", subregion="Northern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Directorate of Internal Revenue",
+                capital_gains_taxable=True,
+                capital_gains_rate="22%",
+                guidance_level=ComplianceLevel.MODERATE
+            ),
+            
+            UNJurisdiction(
+                name="Ireland", iso_code="IE", iso_numeric="372", un_m49="372",
+                region="Europe", subregion="Northern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Revenue Commissioners",
+                capital_gains_taxable=True,
+                capital_gains_rate="33% (after €1,270 exemption)",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Capital Acquisitions Tax may apply. Guidance on crypto taxation issued."
+            ),
+            
+            UNJurisdiction(
+                name="Latvia", iso_code="LV", iso_numeric="428", un_m49="428",
+                region="Europe", subregion="Northern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="State Revenue Service",
+                capital_gains_taxable=True,
+                capital_gains_rate="20%",
+                guidance_level=ComplianceLevel.MODERATE
+            ),
+            
+            UNJurisdiction(
+                name="Liechtenstein", iso_code="LI", iso_numeric="438", un_m49="438",
+                region="Europe", subregion="Western Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Tax Administration",
+                capital_gains_taxable=False,
+                capital_gains_rate="0% (private wealth)",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="No capital gains tax for private wealth. Crypto-friendly jurisdiction."
+            ),
+            
+            UNJurisdiction(
+                name="Lithuania", iso_code="LT", iso_numeric="440", un_m49="440",
+                region="Europe", subregion="Northern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="State Tax Inspectorate",
+                capital_gains_taxable=True,
+                capital_gains_rate="15% / 20% for mining",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Crypto gains taxable. Mining taxed as individual activity."
+            ),
+            
+            UNJurisdiction(
+                name="Luxembourg", iso_code="LU", iso_numeric="442", un_m49="442",
+                region="Europe", subregion="Western Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Administration des contributions directes",
+                capital_gains_taxable=True,
+                capital_gains_rate="0% (if held >6 months and <10% of total assets)",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Speculative gains tax if held <6 months. Otherwise tax-free."
+            ),
+            
+            UNJurisdiction(
+                name="Malta", iso_code="MT", iso_numeric="470", un_m49="470",
+                region="Europe", subregion="Southern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Malta Tax and Customs Administration",
+                capital_gains_taxable=True,
+                capital_gains_rate="35% (business) / 0% (private capital gains)",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Crypto-friendly jurisdiction. Private capital gains generally not taxed."
+            ),
+            
+            UNJurisdiction(
+                name="Moldova", iso_code="MD", iso_numeric="498", un_m49="498",
+                region="Europe", subregion="Eastern Europe",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="State Tax Service",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Monaco", iso_code="MC", iso_numeric="492", un_m49="492",
+                region="Europe", subregion="Western Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Direction des Services Fiscaux",
+                capital_gains_taxable=False,
+                capital_gains_rate="0%",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="No personal income tax or capital gains tax. Very crypto-friendly."
+            ),
+            
+            UNJurisdiction(
+                name="Montenegro", iso_code="ME", iso_numeric="499", un_m49="499",
+                region="Europe", subregion="Southern Europe",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Tax Administration",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="North Macedonia", iso_code="MK", iso_numeric="807", un_m49="807",
+                region="Europe", subregion="Southern Europe",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Public Revenue Office",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Norway", iso_code="NO", iso_numeric="578", un_m49="578",
+                region="Europe", subregion="Northern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Norwegian Tax Administration",
+                capital_gains_taxable=True,
+                capital_gains_rate="22%",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Crypto gains taxed as capital income. Wealth tax may apply."
+            ),
+            
+            UNJurisdiction(
+                name="Poland", iso_code="PL", iso_numeric="616", un_m49="616",
+                region="Europe", subregion="Eastern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="National Revenue Administration",
+                capital_gains_taxable=True,
+                capital_gains_rate="19%",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Crypto gains taxable. Tax authorities actively monitoring transactions."
+            ),
+            
+            UNJurisdiction(
+                name="Romania", iso_code="RO", iso_numeric="642", un_m49="642",
+                region="Europe", subregion="Eastern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="National Agency for Fiscal Administration",
+                capital_gains_taxable=True,
+                capital_gains_rate="10%",
+                guidance_level=ComplianceLevel.MODERATE
+            ),
+            
+            UNJurisdiction(
+                name="Russia", iso_code="RU", iso_numeric="643", un_m49="643",
+                region="Europe", subregion="Eastern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Federal Tax Service",
+                capital_gains_taxable=True,
+                capital_gains_rate="13%",
+                guidance_level=ComplianceLevel.MODERATE,
+                agent_notes="Crypto legal but regulated. Tax applies to crypto income."
+            ),
+            
+            UNJurisdiction(
+                name="San Marino", iso_code="SM", iso_numeric="674", un_m49="674",
+                region="Europe", subregion="Southern Europe",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Agenzia Entrate",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Serbia", iso_code="RS", iso_numeric="688", un_m49="688",
+                region="Europe", subregion="Southern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Tax Administration",
+                capital_gains_taxable=True,
+                capital_gains_rate="15%",
+                guidance_level=ComplianceLevel.MODERATE
+            ),
+            
+            UNJurisdiction(
+                name="Slovakia", iso_code="SK", iso_numeric="703", un_m49="703",
+                region="Europe", subregion="Eastern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Financial Administration",
+                capital_gains_taxable=True,
+                capital_gains_rate="19% / 25%",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Personal income tax applies. Reduced 19% rate for securities-like assets."
+            ),
+            
+            UNJurisdiction(
+                name="Slovenia", iso_code="SI", iso_numeric="705", un_m49="705",
+                region="Europe", subregion="Southern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Financial Administration",
+                capital_gains_taxable=True,
+                capital_gains_rate="25%",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Crypto gains taxable. Progressive tax rate possible."
+            ),
+            
+            UNJurisdiction(
+                name="Sweden", iso_code="SE", iso_numeric="752", un_m49="752",
+                region="Europe", subregion="Northern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Swedish Tax Agency",
+                capital_gains_taxable=True,
+                capital_gains_rate="30%",
+                guidance_level=ComplianceLevel.COMPREHENSIVE,
+                agent_notes="Capital gains tax applies. Mining taxed as business income or hobby."
+            ),
+            
+            UNJurisdiction(
+                name="Ukraine", iso_code="UA", iso_numeric="804", un_m49="804",
+                region="Europe", subregion="Eastern Europe",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="State Tax Service",
+                capital_gains_taxable=True,
+                capital_gains_rate="18% + 1.5% military levy",
+                guidance_level=ComplianceLevel.MODERATE,
+                agent_notes="Virtual assets legalized in 2022. Tax applies to gains."
+            ),
+            
+            UNJurisdiction(
+                name="Vatican City", iso_code="VA", iso_numeric="336", un_m49="336",
+                region="Europe", subregion="Southern Europe",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="N/A",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
             # ... Continue with all 44 European countries
         ]
         
@@ -887,6 +1926,249 @@ class UNJurisdictionDatabase:
                 guidance_level=ComplianceLevel.MODERATE,
                 official_sources=["https://www.sat.gob.mx/"],
                 agent_notes="SAT treats crypto as intangible assets. Fintech Law regulates exchanges."
+            ),
+            
+            # Additional Latin America & Caribbean countries
+            UNJurisdiction(
+                name="Antigua and Barbuda", iso_code="AG", iso_numeric="028", un_m49="028",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Inland Revenue Department",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Bahamas", iso_code="BS", iso_numeric="044", un_m49="044",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Department of Inland Revenue",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Barbados", iso_code="BB", iso_numeric="052", un_m49="052",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Barbados Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Belize", iso_code="BZ", iso_numeric="084", un_m49="084",
+                region="Americas", subregion="Central America",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Income Tax Department",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Bolivia", iso_code="BO", iso_numeric="068", un_m49="068",
+                region="Americas", subregion="South America",
+                crypto_classification=TaxTreatmentCategory.BANNED,
+                primary_tax_authority="Servicio de Impuestos Nacionales",
+                guidance_level=ComplianceLevel.RESTRICTIVE,
+                agent_notes="Central Bank prohibits crypto payments."
+            ),
+            
+            UNJurisdiction(
+                name="Chile", iso_code="CL", iso_numeric="152", un_m49="152",
+                region="Americas", subregion="South America",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Servicio de Impuestos Internos",
+                capital_gains_taxable=True,
+                capital_gains_rate="22-40%",
+                guidance_level=ComplianceLevel.MODERATE,
+                agent_notes="Crypto taxed as intangible assets. Capital gains apply."
+            ),
+            
+            UNJurisdiction(
+                name="Colombia", iso_code="CO", iso_numeric="170", un_m49="170",
+                region="Americas", subregion="South America",
+                crypto_classification=TaxTreatmentCategory.PROPERTY,
+                primary_tax_authority="Dirección de Impuestos y Aduanas Nacionales",
+                capital_gains_taxable=True,
+                capital_gains_rate="10%",
+                guidance_level=ComplianceLevel.MODERATE,
+                agent_notes="Crypto considered intangible assets. Taxable from 2023."
+            ),
+            
+            UNJurisdiction(
+                name="Costa Rica", iso_code="CR", iso_numeric="188", un_m49="188",
+                region="Americas", subregion="Central America",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministerio de Hacienda",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Cuba", iso_code="CU", iso_numeric="192", un_m49="192",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministerio de Finanzas",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Dominica", iso_code="DM", iso_numeric="212", un_m49="212",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Inland Revenue Division",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Dominican Republic", iso_code="DO", iso_numeric="214", un_m49="214",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Dirección General de Impuestos Internos",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Ecuador", iso_code="EC", iso_numeric="218", un_m49="218",
+                region="Americas", subregion="South America",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Servicio de Rentas Internas",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Grenada", iso_code="GD", iso_numeric="308", un_m49="308",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Inland Revenue Division",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Guatemala", iso_code="GT", iso_numeric="320", un_m49="320",
+                region="Americas", subregion="Central America",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Superintendencia de Administración Tributaria",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Guyana", iso_code="GY", iso_numeric="328", un_m49="328",
+                region="Americas", subregion="South America",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Guyana Revenue Authority",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Haiti", iso_code="HT", iso_numeric="332", un_m49="332",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Direction Générale des Impôts",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Honduras", iso_code="HN", iso_numeric="340", un_m49="340",
+                region="Americas", subregion="Central America",
+                crypto_classification=TaxTreatmentCategory.BANNED,
+                primary_tax_authority="Servicio de Administración de Rentas",
+                guidance_level=ComplianceLevel.RESTRICTIVE,
+                agent_notes="Central Bank prohibits crypto transactions."
+            ),
+            
+            UNJurisdiction(
+                name="Jamaica", iso_code="JM", iso_numeric="388", un_m49="388",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Tax Administration Jamaica",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Nicaragua", iso_code="NI", iso_numeric="558", un_m49="558",
+                region="Americas", subregion="Central America",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Dirección General de Ingresos",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Panama", iso_code="PA", iso_numeric="591", un_m49="591",
+                region="Americas", subregion="Central America",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Dirección General de Ingresos",
+                guidance_level=ComplianceLevel.LIMITED,
+                agent_notes="Crypto-friendly legislation passed in 2022."
+            ),
+            
+            UNJurisdiction(
+                name="Paraguay", iso_code="PY", iso_numeric="600", un_m49="600",
+                region="Americas", subregion="South America",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Subsecretaría de Estado de Tributación",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Peru", iso_code="PE", iso_numeric="604", un_m49="604",
+                region="Americas", subregion="South America",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Superintendencia Nacional de Aduanas y de Administración Tributaria",
+                guidance_level=ComplianceLevel.LIMITED,
+                agent_notes="Developing regulatory framework."
+            ),
+            
+            UNJurisdiction(
+                name="Saint Kitts and Nevis", iso_code="KN", iso_numeric="659", un_m49="659",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Inland Revenue Department",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Saint Lucia", iso_code="LC", iso_numeric="662", un_m49="662",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Inland Revenue Department",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Saint Vincent and the Grenadines", iso_code="VC", iso_numeric="670", un_m49="670",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Inland Revenue Department",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Suriname", iso_code="SR", iso_numeric="740", un_m49="740",
+                region="Americas", subregion="South America",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Tax Department",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Trinidad and Tobago", iso_code="TT", iso_numeric="780", un_m49="780",
+                region="Americas", subregion="Caribbean",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Board of Inland Revenue",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Uruguay", iso_code="UY", iso_numeric="858", un_m49="858",
+                region="Americas", subregion="South America",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Dirección General Impositiva",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Venezuela", iso_code="VE", iso_numeric="862", un_m49="862",
+                region="Americas", subregion="South America",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Servicio Nacional Integrado de Administración Aduanera y Tributaria",
+                guidance_level=ComplianceLevel.UNCLEAR
             ),
             
             # ... Continue with all 33 Latin America & Caribbean countries
@@ -1022,6 +2304,103 @@ class UNJurisdictionDatabase:
                     "IR Guidance on Cryptocurrency"
                 ],
                 agent_notes="No comprehensive capital gains tax. Crypto gains taxed as income if acquired for purpose of disposal."
+            ),
+            
+            # Additional Oceania countries
+            UNJurisdiction(
+                name="Fiji", iso_code="FJ", iso_numeric="242", un_m49="242",
+                region="Oceania", subregion="Melanesia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Fiji Revenue and Customs Service",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Kiribati", iso_code="KI", iso_numeric="296", un_m49="296",
+                region="Oceania", subregion="Micronesia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Marshall Islands", iso_code="MH", iso_numeric="584", un_m49="584",
+                region="Oceania", subregion="Micronesia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Micronesia", iso_code="FM", iso_numeric="583", un_m49="583",
+                region="Oceania", subregion="Micronesia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Department of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Nauru", iso_code="NR", iso_numeric="520", un_m49="520",
+                region="Oceania", subregion="Micronesia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Palau", iso_code="PW", iso_numeric="585", un_m49="585",
+                region="Oceania", subregion="Micronesia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Papua New Guinea", iso_code="PG", iso_numeric="598", un_m49="598",
+                region="Oceania", subregion="Melanesia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Internal Revenue Commission",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Samoa", iso_code="WS", iso_numeric="882", un_m49="882",
+                region="Oceania", subregion="Polynesia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Solomon Islands", iso_code="SB", iso_numeric="090", un_m49="090",
+                region="Oceania", subregion="Melanesia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Tonga", iso_code="TO", iso_numeric="776", un_m49="776",
+                region="Oceania", subregion="Polynesia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Tuvalu", iso_code="TV", iso_numeric="798", un_m49="798",
+                region="Oceania", subregion="Polynesia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Ministry of Finance",
+                guidance_level=ComplianceLevel.UNCLEAR
+            ),
+            
+            UNJurisdiction(
+                name="Vanuatu", iso_code="VU", iso_numeric="548", un_m49="548",
+                region="Oceania", subregion="Melanesia",
+                crypto_classification=TaxTreatmentCategory.UNDEFINED,
+                primary_tax_authority="Department of Customs and Inland Revenue",
+                guidance_level=ComplianceLevel.UNCLEAR
             ),
             
             # Add remaining Oceania countries
