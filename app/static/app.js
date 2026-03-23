@@ -352,7 +352,8 @@ function renderSummary(summary) {
   document.getElementById("gains-total").textContent = money.format(summary.total_capital_gains_usd);
   document.getElementById("losses-total").textContent = money.format(summary.total_capital_losses_usd);
   document.getElementById("fallback-total").textContent = String(summary.fallback_count);
-  document.getElementById("summary-badge").textContent = `${summary.jurisdiction} ${summary.tax_year}`;
+  document.getElementById("summary-badge").textContent = `${summary.jurisdiction} ${summary.tax_year} · ${summary.period_label || "CSV date range"}`;
+  statusNode.textContent = summary.tax_year_selection_note || statusNode.textContent;
   renderPartnerSignals(summary.partner_signals);
   summaryPanel.classList.remove("hidden");
 }
@@ -631,10 +632,11 @@ function renderMultiJurisdictionSummary(rows) {
 
 async function loadRuleTemplates() {
   const jurisdictions = selectedJurisdictions();
-  const taxYear = taxYearInput?.value || "2025";
+  const taxYear = (taxYearInput?.value || "").trim();
+  const yearParam = taxYear ? `&tax_year=${encodeURIComponent(taxYear)}` : "";
   try {
     const response = await fetch(
-      `/rules/templates?jurisdictions=${encodeURIComponent(jurisdictions.join(","))}&tax_year=${encodeURIComponent(taxYear)}`,
+      `/rules/templates?jurisdictions=${encodeURIComponent(jurisdictions.join(","))}${yearParam}`,
     );
     const payload = await response.json();
     if (!response.ok) {
