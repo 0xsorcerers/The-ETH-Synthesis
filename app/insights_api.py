@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
 from typing import List, Optional, Dict, Any
 import asyncio
 import os
+from datetime import UTC, datetime
 
 from app.moltbook_insights import (
     MoltbookInsightsClient,
@@ -20,6 +21,12 @@ from app.moltbook_insights import (
     ExpansionPlanResponse,
     request_tax_knowledge_sync
 )
+from app.agent_insights_integration import (
+    INTEGRATED_INSIGHTS,
+    INTEGRATION_WORKFLOW,
+    build_sata_enhancement_plan,
+)
+from app.security import audit_logger, AuditEvent, require_admin_token
 
 router = APIRouter(prefix="/insights", tags=["Agent Collaboration"])
 
@@ -29,7 +36,7 @@ integration_engine = InsightsIntegrationEngine()
 
 
 @router.post("/request", response_model=Dict[str, Any])
-async def request_knowledge(payload: KnowledgeRequestPayload):
+async def request_knowledge(payload: KnowledgeRequestPayload, _: bool = Depends(require_admin_token)):
     """
     Create a knowledge request on Moltbook for a specific jurisdiction.
     Other agents can respond with tax insights.
@@ -49,6 +56,17 @@ async def request_knowledge(payload: KnowledgeRequestPayload):
         success = await client.create_knowledge_request(request)
         
         if success:
+            audit_logger.log(
+                AuditEvent(
+                    event_type="knowledge_request_created",
+                    route="/insights/request",
+                    method="POST",
+                    status="success",
+                    timestamp=datetime.now(UTC).isoformat(),
+                    actor="agent_operator",
+                    detail=f"jurisdiction={payload.jurisdiction}",
+                )
+            )
             return {
                 "success": True,
                 "request_id": request.request_id,
@@ -153,7 +171,9 @@ async def get_expansion_plan(
 
 
 @router.post("/batch-request/{tier}")
-async def batch_request_knowledge(tier: str, background_tasks: BackgroundTasks):
+async def batch_request_knowledge(
+    tier: str, background_tasks: BackgroundTasks, _: bool = Depends(require_admin_token)
+):
     """
     Batch create knowledge requests for all jurisdictions in a tier.
     This runs in the background.
@@ -176,6 +196,17 @@ async def batch_request_knowledge(tier: str, background_tasks: BackgroundTasks):
                     print(f"Failed to post request for {request.jurisdiction}: {e}")
     
     background_tasks.add_task(_batch_post)
+    audit_logger.log(
+        AuditEvent(
+            event_type="batch_request_started",
+            route=f"/insights/batch-request/{tier}",
+            method="POST",
+            status="success",
+            timestamp=datetime.now(UTC).isoformat(),
+            actor="agent_operator",
+            detail=f"tier={tier}",
+        )
+    )
     
     return {
         "success": True,
@@ -186,7 +217,7 @@ async def batch_request_knowledge(tier: str, background_tasks: BackgroundTasks):
 
 
 @router.post("/integrate")
-async def integrate_insight(insight_data: Dict[str, Any]):
+async def integrate_insight(insight_data: Dict[str, Any], _: bool = Depends(require_admin_token)):
     """
     Manually integrate an agent insight into the tax rule system.
     Typically called after validating a received insight.
@@ -204,6 +235,17 @@ async def integrate_insight(insight_data: Dict[str, Any]):
     success = await integration_engine.integrate_insight(insight)
     
     if success:
+        audit_logger.log(
+            AuditEvent(
+                event_type="insight_integrated",
+                route="/insights/integrate",
+                method="POST",
+                status="success",
+                timestamp=datetime.now(UTC).isoformat(),
+                actor=insight.agent_name,
+                detail=f"jurisdiction={insight.jurisdiction}",
+            )
+        )
         return {
             "success": True,
             "message": f"Insight from {insight.agent_name} integrated for {insight.jurisdiction}",
@@ -267,7 +309,7 @@ async def get_moltbook_feed():
 
 
 @router.post("/auto-expand")
-async def trigger_auto_expansion(background_tasks: BackgroundTasks):
+async def trigger_auto_expansion(background_tasks: BackgroundTasks, _: bool = Depends(require_admin_token)):
     """
     Trigger automatic expansion mode.
     
@@ -321,6 +363,17 @@ async def trigger_auto_expansion(background_tasks: BackgroundTasks):
                 await asyncio.sleep(300)  # Wait 5 minutes on error
     
     background_tasks.add_task(_auto_expand)
+    audit_logger.log(
+        AuditEvent(
+            event_type="auto_expansion_activated",
+            route="/insights/auto-expand",
+            method="POST",
+            status="success",
+            timestamp=datetime.now(UTC).isoformat(),
+            actor="agent_operator",
+            detail="continuous_mode=true",
+        )
+    )
     
     return {
         "success": True,
@@ -348,7 +401,7 @@ async def insights_health():
 
 # Agent Heartbeat Endpoints (Hazel_OC inspired)
 @router.post("/heartbeat/run")
-async def run_heartbeat():
+async def run_heartbeat(_: bool = Depends(require_admin_token)):
     """
     Run agent heartbeat once.
     Checks: tax deadlines, jurisdiction updates, API health, Moltbook feed.
@@ -384,7 +437,7 @@ async def get_daily_changelog():
         
         return {
             "agent": engine.agent_name,
-            "date": datetime.utcnow().strftime('%Y-%m-%d'),
+            "date": datetime.now(UTC).strftime('%Y-%m-%d'),
             "changelog": changelog,
             "checks_configured": len(engine.heartbeat.checks)
         }
@@ -393,7 +446,7 @@ async def get_daily_changelog():
 
 
 @router.post("/heartbeat/continuous")
-async def start_continuous_heartbeat(background_tasks: BackgroundTasks):
+async def start_continuous_heartbeat(background_tasks: BackgroundTasks, _: bool = Depends(require_admin_token)):
     """
     Start continuous heartbeat in background.
     Runs every 5 minutes by default.
@@ -447,3 +500,20 @@ async def get_heartbeat_status():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get status: {str(e)}")
+
+
+@router.get("/enhancement-plan")
+async def get_integrated_insight_enhancement_plan():
+    """
+    Build an implementation-ready backlog from accepted integrated insights.
+    """
+    backlog = build_sata_enhancement_plan(INTEGRATED_INSIGHTS)
+    return {
+        "workflow": INTEGRATION_WORKFLOW,
+        "guideline_note": (
+            "Every accepted insight must map to at least one implementation task, "
+            "assigned priority, and an auditable next action in the app backlog."
+        ),
+        "backlog_count": len(backlog),
+        "backlog": backlog,
+    }

@@ -3,10 +3,9 @@ Agent Insights Integration Module
 Handles incoming suggestions from Moltbook agents and filters per BUILD_LOGIC.md guidelines
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
-from datetime import datetime
-import json
+from datetime import UTC, datetime
 
 @dataclass
 class AgentSuggestion:
@@ -22,7 +21,7 @@ class AgentSuggestion:
     
     def __post_init__(self):
         if not self.timestamp:
-            self.timestamp = datetime.utcnow().isoformat()
+            self.timestamp = datetime.now(UTC).isoformat()
 
 
 class SuggestionFilter:
@@ -55,6 +54,12 @@ class SuggestionFilter:
     VAGUE_PHRASES = [
         'i think', 'probably', 'maybe', 'seems like', 'apparently',
         'some say', 'generally', 'usually', 'most likely'
+    ]
+
+    # Action-oriented phrases that indicate implementable suggestions
+    ACTIONABLE_SIGNALS = [
+        'implement', 'add', 'create', 'enforce', 'validate', 'monitor',
+        'encrypt', 'limit', 'audit', 'track', 'test', 'deploy'
     ]
     
     @classmethod
@@ -105,6 +110,11 @@ class SuggestionFilter:
         if len(suggestion.content) < 50:
             result['reasons'].append('Content too brief to be actionable')
             return result
+
+        # Check 6: Feature/architecture suggestions should be actionable
+        if suggestion.suggestion_type in {'feature', 'architecture', 'ui_ux'}:
+            if not any(signal in content_lower for signal in cls.ACTIONABLE_SIGNALS):
+                result['warnings'].append('Suggestion lacks clear implementation action words')
         
         # All checks passed
         if len(result['reasons']) == 0:
@@ -122,10 +132,13 @@ class IntegrationQueue:
         self.approved: List[AgentSuggestion] = []
         self.rejected: List[AgentSuggestion] = []
         self.flagged: List[AgentSuggestion] = []
+        self.assessments: Dict[str, Dict[str, Any]] = {}
     
     def add_suggestion(self, suggestion: AgentSuggestion) -> Dict:
         """Add and validate a new suggestion"""
         validation = SuggestionFilter.validate(suggestion)
+        guideline_assessment = SATAImprovementGuidelines.evaluate_suggestion(suggestion)
+        self.assessments[suggestion.agent_id] = guideline_assessment
         
         if validation['accepted']:
             if validation['action'] == 'integrate':
@@ -136,8 +149,11 @@ class IntegrationQueue:
             self.flagged.append(suggestion)
         else:
             self.rejected.append(suggestion)
-        
-        return validation
+
+        return {
+            **validation,
+            'guideline_assessment': guideline_assessment
+        }
     
     def get_pending_for_review(self) -> List[AgentSuggestion]:
         """Get suggestions requiring human/agent review"""
@@ -157,7 +173,113 @@ class IntegrationQueue:
             'pending_review': len(self.pending),
             'approved_ready': len(self.approved),
             'rejected': len(self.rejected),
-            'flagged_harmful': len(self.flagged)
+            'flagged_harmful': len(self.flagged),
+            'high_impact_suggestions': len([
+                1 for data in self.assessments.values()
+                if data.get('impact_score', 0) >= 0.75
+            ])
+        }
+
+    def build_enhancement_backlog(self) -> List[Dict[str, Any]]:
+        """Return approved/pending suggestions ranked by SATA guideline impact."""
+        candidates = self.approved + self.pending
+        backlog: List[Dict[str, Any]] = []
+
+        for suggestion in candidates:
+            assessment = self.assessments.get(
+                suggestion.agent_id,
+                SATAImprovementGuidelines.evaluate_suggestion(suggestion)
+            )
+            backlog.append({
+                'agent_id': suggestion.agent_id,
+                'agent_name': suggestion.agent_name,
+                'title': suggestion.content[:90] + ('...' if len(suggestion.content) > 90 else ''),
+                'suggestion_type': suggestion.suggestion_type,
+                'priority': assessment['recommended_priority'],
+                'impact_score': assessment['impact_score'],
+                'matched_guidelines': assessment['matched_guidelines'],
+                'next_actions': assessment['next_actions']
+            })
+
+        priority_order = {'high': 0, 'medium': 1, 'low': 2}
+        return sorted(
+            backlog,
+            key=lambda item: (
+                priority_order.get(item['priority'], 3),
+                -item['impact_score']
+            )
+        )
+
+
+class SATAImprovementGuidelines:
+    """
+    Maps incoming suggestions to the active SATA protocol enhancement plan.
+    """
+
+    GUIDELINES: Dict[str, Dict[str, Any]] = {
+        'enhanced_rule_engine_modularity': {
+            'priority': 'high',
+            'keywords': ['rule', 'validation', 'version', 'cache', 'dependency', 'testing framework'],
+            'next_actions': ['Add rule version metadata', 'Expand rule validation coverage']
+        },
+        'scalability_enhancements': {
+            'priority': 'high',
+            'keywords': ['async', 'queue', 'background job', 'persistence', 'rate limiting', 'scalability'],
+            'next_actions': ['Move heavy jobs to background workers', 'Add request throttling metrics']
+        },
+        'agent_first_architecture': {
+            'priority': 'high',
+            'keywords': ['webhook', 'agent authentication', 'telemetry', 'agent endpoint', 'workflow'],
+            'next_actions': ['Add authenticated agent workflows', 'Track agent action telemetry']
+        },
+        'enhanced_classification': {
+            'priority': 'medium',
+            'keywords': ['classification', 'confidence', 'audit trail', 'custom rules', 'ml-based'],
+            'next_actions': ['Log classifier confidence per event', 'Expose classifier audit traces']
+        },
+        'multi_jurisdiction_expansion': {
+            'priority': 'medium',
+            'keywords': ['jurisdiction', 'cross-jurisdiction', 'currency conversion', 'reporting'],
+            'next_actions': ['Prioritize high-demand jurisdictions', 'Add conversion traceability']
+        },
+        'security_architecture': {
+            'priority': 'high',
+            'keywords': ['encryption', 'access control', 'privacy', 'security', 'threat', 'gdpr'],
+            'next_actions': ['Enforce encryption at rest/in transit', 'Add role-based access controls']
+        }
+    }
+
+    @classmethod
+    def evaluate_suggestion(cls, suggestion: AgentSuggestion) -> Dict[str, Any]:
+        """
+        Score suggestion against SATA improvement guidelines and produce a structured action plan.
+        """
+        content = suggestion.content.lower()
+        matches: List[str] = []
+        actions: List[str] = []
+        score = 0.0
+        priority = 'low'
+
+        for guideline, detail in cls.GUIDELINES.items():
+            keyword_matches = [kw for kw in detail['keywords'] if kw in content]
+            if keyword_matches:
+                matches.append(guideline)
+                actions.extend(detail['next_actions'])
+                score += min(0.25 + (0.05 * len(keyword_matches)), 0.4)
+                if detail['priority'] == 'high':
+                    priority = 'high'
+                elif priority != 'high' and detail['priority'] == 'medium':
+                    priority = 'medium'
+
+        # Confidence contributes to impact score
+        score += suggestion.confidence * 0.4
+        normalized_score = round(min(score, 1.0), 2)
+
+        return {
+            'matched_guidelines': matches,
+            'recommended_priority': priority,
+            'impact_score': normalized_score,
+            'next_actions': sorted(set(actions))
         }
 
 
@@ -205,7 +327,7 @@ class GeolocationFeatureTracker:
                 'feature': feature,
                 'suggested_by': agent,
                 'rationale': rationale,
-                'timestamp': datetime.utcnow().isoformat(),
+                'timestamp': datetime.now(UTC).isoformat(),
                 'status': 'proposed'
             })
     
@@ -245,6 +367,52 @@ Agent posts insight → Validation check → Source verification → Review → 
 8. Deploy to production
 """
 
+# Mandatory rule so incoming insights become implemented product improvements.
+INSIGHT_IMPLEMENTATION_GUIDELINE = """
+For every accepted insight:
+1. Map it to at least one SATA guideline track.
+2. Generate explicit next actions with owner + priority.
+3. Implement the action in application code or API behavior.
+4. Record an audit-friendly status update (planned/in_progress/done).
+"""
+
+
+def build_sata_enhancement_plan(insights: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Convert raw integrated insights into a prioritized SATA enhancement backlog.
+    """
+    queue = IntegrationQueue()
+    for idx, insight in enumerate(insights, start=1):
+        suggestion = AgentSuggestion(
+            agent_name=insight.get("agent", "Unknown"),
+            agent_id=f"integrated_{idx}",
+            suggestion_type="architecture" if "architecture" in insight.get("insight_type", "") else "feature",
+            jurisdiction=insight.get("jurisdiction"),
+            content=insight.get("content", ""),
+            sources=[insight.get("source", "")] if insight.get("source") else [],
+            confidence=0.9 if insight.get("status") == "accepted" else 0.65,
+            timestamp=insight.get("date", "")
+        )
+        queue.add_suggestion(suggestion)
+    backlog = queue.build_enhancement_backlog()
+
+    # Fold insight recommendations into executable tasks to close the loop.
+    for item in backlog:
+        source_insight = next(
+            (insight for insight in insights if insight.get("agent") == item["agent_name"]),
+            None
+        )
+        if source_insight and source_insight.get("recommendations"):
+            item["implementation_tasks"] = [
+                {
+                    "task": rec,
+                    "status": "planned",
+                    "origin": "agent_recommendation"
+                }
+                for rec in source_insight["recommendations"]
+            ]
+    return backlog
+
 # Example usage
 if __name__ == "__main__":
     # Test the filter
@@ -266,6 +434,7 @@ if __name__ == "__main__":
     queue = IntegrationQueue()
     queue.add_suggestion(test_suggestion)
     print(f"Queue stats: {queue.get_stats()}")
+    print(f"Enhancement backlog: {queue.build_enhancement_backlog()}")
 
 
 # Integrated Agent Insights Log

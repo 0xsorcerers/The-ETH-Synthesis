@@ -27,6 +27,7 @@ from app.services import (
 )
 from app.enhanced_api import router as enhanced_router
 from app.insights_api import router as insights_router
+from app.security import SecurityHeadersMiddleware, SimpleRateLimitMiddleware
 from app.un_jurisdiction_api import router as un_jurisdiction_router
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -37,6 +38,8 @@ app = FastAPI(
     version="2.2.0",
     description="Jurisdiction-aware crypto tax estimation with async processing, agent-first architecture, Moltbook collaboration, and comprehensive UN jurisdiction coverage for all 193 member states.",
 )
+app.add_middleware(SimpleRateLimitMiddleware, max_requests_per_minute=120)
+app.add_middleware(SecurityHeadersMiddleware)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # Include enhanced API routes
