@@ -91,6 +91,43 @@ def test_generate_report_from_csv_upload():
     assert any(item["event_type"] == "unstaking" for item in body["line_items"])
 
 
+def test_generate_report_from_etherscan_csv_upload():
+    etherscan_csv = (
+        '"Transaction Hash","Blockno","UnixTimestamp","DateTime (UTC)","From","To","ContractAddress","Value_IN(ETH)","Value_OUT(ETH)","CurrentValue @ $2084.3165498016/Eth","TxnFee(ETH)","TxnFee(USD)","Historical $Price/Eth","Status","ErrCode","Method"\n'
+        '"0xhash-in","21686821","1737630851","2025-01-23 11:14:11","0xaaa","0xwallet","","0.0380605","0","79.33","0.00015288924231","0.3186","3338.70","","","Transfer"\n'
+        '"0xhash-out","21686874","1737631487","2025-01-23 11:24:47","0xwallet","0xbbb","","0","0.0273","56.90","0.00529785682931128","11.04","3338.70","","","Snwap"\n'
+        '"0xhash-approve","21686875","1737631499","2025-01-23 11:24:59","0xwallet","0xccc","","0","0","0","0.0001","0.20","3338.70","","","Approve"\n'
+    )
+    response = client.post(
+        "/reports/generate-from-csv",
+        data={"jurisdiction": "US", "tax_year": "2025"},
+        files={"file": ("etherscan.csv", etherscan_csv.encode("utf-8"), "text/csv")},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["summary"]["jurisdiction"] == "US"
+    assert len(body["line_items"]) == 3
+    assert body["line_items"][0]["event_type"] == "transfer"
+    assert body["line_items"][2]["source_app"] == "etherscan_csv"
+
+
+def test_ingestion_readiness_accepts_etherscan_csv_headers():
+    etherscan_csv = (
+        '"Transaction Hash","Blockno","UnixTimestamp","DateTime (UTC)","From","To","ContractAddress","Value_IN(ETH)","Value_OUT(ETH)","CurrentValue @ $2084.3165498016/Eth","TxnFee(ETH)","TxnFee(USD)","Historical $Price/Eth","Status","ErrCode","Method"\n'
+        '"0xhash-in","21686821","1737630851","2025-01-23 11:14:11","0xaaa","0xwallet","","0.0380605","0","79.33","0.00015288924231","0.3186","3338.70","","","Transfer"\n'
+    )
+    response = client.post(
+        "/ingestion/readiness-from-csv",
+        files={"file": ("etherscan.csv", etherscan_csv.encode("utf-8"), "text/csv")},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["summary"]["readiness"] == "ready"
+    assert body["missing_columns"] == []
+
+
 def test_export_markdown_from_json():
     response = client.post(
         "/reports/export-markdown",

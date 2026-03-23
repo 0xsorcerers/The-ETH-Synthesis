@@ -71,6 +71,18 @@ REQUIRED_CSV_COLUMNS = [
     "counter_quantity",
     "description",
 ]
+ETHERSCAN_REQUIRED_COLUMNS = [
+    "transaction hash",
+    "datetime (utc)",
+    "from",
+    "to",
+    "value_in(eth)",
+    "value_out(eth)",
+    "txnfee(eth)",
+    "txnfee(usd)",
+    "historical $price/eth",
+    "method",
+]
 DEFAULT_BASELINE_TAX_YEAR = 2025
 GLOBAL_BASELINE_JURISDICTION_LABEL = "UN-ALIGNED BASELINE"
 GLOBAL_BASELINE_CITATIONS = [
@@ -205,6 +217,7 @@ def parse_transactions_csv(content: bytes) -> list[TransactionRecord]:
     rows: list[TransactionRecord] = []
     for index, row in enumerate(reader, start=1):
         normalized = {key.strip().lower(): (value.strip() if isinstance(value, str) else value) for key, value in row.items()}
+        normalized = _normalize_source_row(normalized, index)
         try:
             rows.append(
                 TransactionRecord(
@@ -238,7 +251,8 @@ def inspect_csv_readiness(content: bytes) -> IngestionReadinessReport:
     text = content.decode("utf-8-sig")
     reader = csv.DictReader(StringIO(text))
     present_columns = [header.strip().lower() for header in (reader.fieldnames or []) if isinstance(header, str)]
-    missing_columns = [column for column in REQUIRED_CSV_COLUMNS if column not in present_columns]
+    is_etherscan_csv = _is_etherscan_schema(present_columns)
+    missing_columns = [] if is_etherscan_csv else [column for column in REQUIRED_CSV_COLUMNS if column not in present_columns]
     issues: list[IngestionIssue] = []
     total_rows = 0
     valid_rows = 0
@@ -257,6 +271,7 @@ def inspect_csv_readiness(content: bytes) -> IngestionReadinessReport:
     for row_number, row in enumerate(reader, start=2):
         total_rows += 1
         normalized = {key.strip().lower(): (value.strip() if isinstance(value, str) else value) for key, value in row.items()}
+        normalized = _normalize_source_row(normalized, row_number - 1)
         row_issues = _inspect_csv_row(row_number, normalized, seen_tx_ids)
         issues.extend(row_issues)
         if not any(issue.severity == "error" for issue in row_issues):
@@ -292,12 +307,56 @@ def inspect_csv_readiness(content: bytes) -> IngestionReadinessReport:
             warning_count=warning_count,
             readiness=readiness,
         ),
-        required_columns=REQUIRED_CSV_COLUMNS,
+        required_columns=REQUIRED_CSV_COLUMNS if not is_etherscan_csv else ETHERSCAN_REQUIRED_COLUMNS,
         present_columns=present_columns,
         missing_columns=missing_columns,
         issues=issues,
         agent_notes=agent_notes,
     )
+
+
+def _is_etherscan_schema(present_columns: list[str]) -> bool:
+    present = set(present_columns)
+    return all(column in present for column in ETHERSCAN_REQUIRED_COLUMNS)
+
+
+def _normalize_source_row(row: dict[str, str | None], index: int) -> dict[str, str | None]:
+    if "tx_id" in row:
+        return row
+
+    if not _is_etherscan_schema(list(row.keys())):
+        return row
+
+    tx_hash = row.get("transaction hash") or ""
+    value_in = _optional_float(row.get("value_in(eth)")) or 0.0
+    value_out = _optional_float(row.get("value_out(eth)")) or 0.0
+    fee_eth = _optional_float(row.get("txnfee(eth)")) or 0.0
+    quantity = value_in if value_in > 0 else value_out if value_out > 0 else fee_eth
+    direction = "in" if value_in > 0 else "out" if value_out > 0 else "fee_only"
+    method = row.get("method") or ""
+    tx_fee_usd = _optional_float(row.get("txnfee(usd)")) or 0.0
+    historical_price = _optional_float(row.get("historical $price/eth"))
+    current_value_usd = _optional_float(row.get("currentvalue @ $2084.3165498016/eth"))
+    status = row.get("status") or ""
+    err_code = row.get("errcode") or ""
+
+    return {
+        "tx_id": tx_hash or f"row-{index}",
+        "timestamp": row.get("datetime (utc)") or "",
+        "asset": "ETH",
+        "quantity": str(quantity),
+        "tx_hash": tx_hash or None,
+        "network": "ethereum",
+        "wallet_provider": "wallet_import",
+        "source_app": "etherscan_csv",
+        "event_hint": method,
+        "price_usd": str(historical_price) if historical_price is not None else None,
+        "proceeds_usd": str(current_value_usd) if current_value_usd is not None else None,
+        "fee_usd": str(tx_fee_usd),
+        "counter_asset": None,
+        "counter_quantity": None,
+        "description": f"method={method};direction={direction};from={row.get('from')};to={row.get('to')};status={status};err={err_code}",
+    }
 
 
 def classify_transaction(record: TransactionRecord) -> ClassifiedTransaction:
