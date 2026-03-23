@@ -14,6 +14,13 @@ def test_index_serves_demo_ui():
     assert "Generate Report" in response.text
 
 
+def test_skill_guide_endpoint():
+    response = client.get("/skill")
+
+    assert response.status_code == 200
+    assert "Skynet Tax Agent Skill Guide" in response.text
+
+
 def test_generate_report_from_json():
     response = client.post(
         "/reports/generate",
@@ -197,10 +204,12 @@ def test_supported_jurisdictions_endpoint():
 
     assert response.status_code == 200
     body = response.json()
+    assert len(body) >= 195
     assert any(item["code"] == "US" for item in body)
+    assert any(item["code"] == "GB" for item in body)
     assert any(item["code"] == "UK" for item in body)
     assert any(item["code"] == "NG" for item in body)
-    assert any(item["code"] == "ALL" for item in body)
+    assert any(item["code"] == "FR" for item in body)
 
 
 def test_generate_report_for_open_jurisdiction_baseline():
