@@ -30,6 +30,7 @@ from app.insights_api import router as insights_router
 from app.un_jurisdiction_api import router as un_jurisdiction_router
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+SKILL_PATH = Path(__file__).resolve().parent.parent / "skill.md"
 
 app = FastAPI(
     title="Skynet Tax Engine",
@@ -47,6 +48,11 @@ app.include_router(un_jurisdiction_router)
 @app.get("/", include_in_schema=False)
 def index() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.get("/skill", include_in_schema=False)
+def skill() -> FileResponse:
+    return FileResponse(SKILL_PATH)
 
 
 @app.get("/health")

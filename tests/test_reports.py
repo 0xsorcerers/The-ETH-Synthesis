@@ -14,6 +14,13 @@ def test_index_serves_demo_ui():
     assert "Generate Report" in response.text
 
 
+def test_skill_guide_endpoint():
+    response = client.get("/skill")
+
+    assert response.status_code == 200
+    assert "Skynet Tax Agent Skill Guide" in response.text
+
+
 def test_generate_report_from_json():
     response = client.post(
         "/reports/generate",
