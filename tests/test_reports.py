@@ -197,10 +197,12 @@ def test_supported_jurisdictions_endpoint():
 
     assert response.status_code == 200
     body = response.json()
+    assert len(body) >= 195
     assert any(item["code"] == "US" for item in body)
+    assert any(item["code"] == "GB" for item in body)
     assert any(item["code"] == "UK" for item in body)
     assert any(item["code"] == "NG" for item in body)
-    assert any(item["code"] == "ALL" for item in body)
+    assert any(item["code"] == "FR" for item in body)
 
 
 def test_generate_report_for_open_jurisdiction_baseline():

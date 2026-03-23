@@ -48,6 +48,7 @@ from app.models import (
     TransactionRecord,
     WorkflowStep,
 )
+from app.un_jurisdictions import get_un_jurisdiction_db
 
 
 RULES_DIR = Path(__file__).resolve().parent.parent / "rules"
@@ -398,8 +399,63 @@ def classify_transaction(record: TransactionRecord) -> ClassifiedTransaction:
     )
 
 
+def _available_tax_years_for_jurisdiction(jurisdiction: str) -> list[int]:
+    jurisdiction_code = jurisdiction.upper()
+    years = sorted(
+        {
+            int(match.group("year"))
+            for path in RULES_DIR.glob(f"{jurisdiction_code.lower()}_*.sample.json")
+            if (match := re.match(r"^[a-zA-Z0-9]+_(?P<year>\d{4})\.sample$", path.name))
+        },
+        reverse=True,
+    )
+    if years:
+        return years
+    if _is_open_jurisdiction_code(jurisdiction_code):
+        return [DEFAULT_BASELINE_TAX_YEAR]
+    return []
+
+
+def _resolve_tax_year(
+    jurisdiction: str,
+    requested_tax_year: int | None,
+    transactions: list[TransactionRecord],
+) -> tuple[int, str]:
+    available_years = _available_tax_years_for_jurisdiction(jurisdiction)
+    if not available_years:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No tax rules found for jurisdiction {jurisdiction.upper()}.",
+        )
+
+    if requested_tax_year is not None and requested_tax_year in available_years:
+        return requested_tax_year, f"Used requested tax year {requested_tax_year}."
+
+    transaction_years = sorted({tx.timestamp.year for tx in transactions})
+    for year in reversed(transaction_years):
+        if year in available_years:
+            return year, (
+                f"Requested tax year {requested_tax_year} was unavailable. "
+                f"Used {year} based on CSV transaction dates."
+            )
+
+    resolved_year = available_years[0]
+    if requested_tax_year is None:
+        return resolved_year, (
+            f"No tax year was selected. Used {resolved_year}, the available ruleset version, "
+            "while keeping tax calculations across the full CSV date range."
+        )
+    return resolved_year, (
+        f"Requested tax year {requested_tax_year} was unavailable. Used {resolved_year}, "
+        "the available ruleset version, while keeping tax calculations across the full CSV date range."
+    )
+
+
 def generate_report(request: GenerateReportRequest) -> TaxReport:
-    rule_set = load_rule_set(request.jurisdiction, request.tax_year)
+    period_start = min(request.transactions, key=lambda tx: tx.timestamp).timestamp
+    period_end = max(request.transactions, key=lambda tx: tx.timestamp).timestamp
+    resolved_tax_year, tax_year_note = _resolve_tax_year(request.jurisdiction, request.tax_year, request.transactions)
+    rule_set = load_rule_set(request.jurisdiction, resolved_tax_year)
     rule_by_event = {rule.eventType: rule for rule in rule_set.eventRules}
     inventory: dict[str, deque[Lot]] = defaultdict(deque)
     line_items: list[ReportLineItem] = []
@@ -409,6 +465,11 @@ def generate_report(request: GenerateReportRequest) -> TaxReport:
         "Swap normalization tracks disposed and acquired sides separately when counter asset data is present.",
         "Liquidity add/remove flows are approximated using single-sided asset records in the MVP unless both legs are supplied.",
         "Fallback-derived results are estimates and should be reviewed by a tax professional.",
+        (
+            "Tax period defaults to the CSV transaction span "
+            f"({period_start.date().isoformat()} to {period_end.date().isoformat()}) "
+            "when the requested tax year is missing or unavailable."
+        ),
     ]
 
     for transaction in sorted(request.transactions, key=lambda row: row.timestamp):
@@ -452,6 +513,11 @@ def generate_report(request: GenerateReportRequest) -> TaxReport:
     summary = ReportSummary(
         jurisdiction=rule_set.jurisdiction,
         tax_year=rule_set.taxYear,
+        requested_tax_year=request.tax_year,
+        period_start=period_start,
+        period_end=period_end,
+        period_label=f"{period_start.date().isoformat()} to {period_end.date().isoformat()}",
+        tax_year_selection_note=tax_year_note,
         total_taxable_income_usd=round(sum(item.taxable_amount_usd for item in line_items if item.tax_treatment == "taxable_income"), 2),
         total_capital_gains_usd=round(sum(max(item.gain_or_loss_usd, 0) for item in line_items if item.tax_treatment in {"capital_gains", "mixed"}), 2),
         total_capital_losses_usd=round(sum(min(item.gain_or_loss_usd, 0) for item in line_items if item.tax_treatment in {"capital_gains", "mixed"}), 2),
@@ -492,7 +558,7 @@ def generate_multi_jurisdiction_report(request: MultiJurisdictionReportRequest) 
         )
 
     return MultiJurisdictionReport(
-        tax_year=request.tax_year,
+        tax_year=request.tax_year or DEFAULT_BASELINE_TAX_YEAR,
         jurisdictions=unique_jurisdictions,
         reports=reports,
         comparison=comparison,
@@ -515,7 +581,7 @@ def preview_normalization(request: GenerateReportRequest) -> list[NormalizationP
     return preview
 
 
-def build_autonomy_plan(content: bytes, jurisdiction: str, tax_year: int) -> AutonomyPlan:
+def build_autonomy_plan(content: bytes, jurisdiction: str, tax_year: int | None) -> AutonomyPlan:
     readiness = inspect_csv_readiness(content)
     blocked_rows = sum(1 for issue in readiness.issues if issue.severity == "error" and issue.scope == "row")
     warning_rows = len({issue.row_number for issue in readiness.issues if issue.severity == "warning" and issue.row_number is not None})
@@ -559,7 +625,7 @@ def build_autonomy_plan(content: bytes, jurisdiction: str, tax_year: int) -> Aut
         )
         return AutonomyPlan(
             jurisdiction=jurisdiction,
-            tax_year=tax_year,
+            tax_year=tax_year or DEFAULT_BASELINE_TAX_YEAR,
             autonomy_status="blocked",
             recommended_action="repair_csv",
             summary="Autonomous execution is blocked until the CSV contract is repaired.",
@@ -581,7 +647,8 @@ def build_autonomy_plan(content: bytes, jurisdiction: str, tax_year: int) -> Aut
     transactions = parse_transactions_csv(content)
     request = GenerateReportRequest(jurisdiction=jurisdiction.upper(), tax_year=tax_year, transactions=transactions)
     preview = preview_normalization(request)
-    rule_set = load_rule_set(request.jurisdiction, request.tax_year)
+    resolved_tax_year, _ = _resolve_tax_year(request.jurisdiction, request.tax_year, transactions)
+    rule_set = load_rule_set(request.jurisdiction, resolved_tax_year)
     supported_events = {rule.eventType for rule in rule_set.eventRules}
 
     low_confidence_count = sum(1 for item in preview if item.confidence < 0.75)
@@ -590,7 +657,10 @@ def build_autonomy_plan(content: bytes, jurisdiction: str, tax_year: int) -> Aut
     if low_confidence_count:
         rationale.append(f"{low_confidence_count} transactions have low-confidence classification results.")
     if predicted_fallback_count:
-        rationale.append(f"{predicted_fallback_count} transactions are likely to use fallback tax treatment in {jurisdiction.upper()} {tax_year}.")
+        rationale.append(
+            f"{predicted_fallback_count} transactions are likely to use fallback tax treatment in "
+            f"{jurisdiction.upper()} {resolved_tax_year}."
+        )
     if readiness.summary.warning_count:
         rationale.append("The CSV is usable, but warning-level data quality gaps still weaken audit confidence.")
     if not rationale:
@@ -633,7 +703,7 @@ def build_autonomy_plan(content: bytes, jurisdiction: str, tax_year: int) -> Aut
 
     return AutonomyPlan(
         jurisdiction=jurisdiction,
-        tax_year=tax_year,
+        tax_year=resolved_tax_year,
         autonomy_status="review" if review_needed else "ready",
         recommended_action="review_predictions" if review_needed else "generate_report",
         summary=(
@@ -1412,28 +1482,34 @@ def list_supported_jurisdictions() -> list[SupportedJurisdiction]:
         year = int(match.group("year"))
         year_map[code].append(year)
 
-    labels = {
-        "US": "United States",
-        "UK": "United Kingdom",
-        "NG": "Nigeria",
-        "KE": "Kenya",
-        "ALL": "All UN jurisdictions (baseline)",
-    }
-    jurisdictions = [
-        SupportedJurisdiction(code=code, label=labels.get(code, code), tax_years=sorted(set(years), reverse=True))
-        for code, years in sorted(year_map.items())
-    ]
-    jurisdictions.append(
-        SupportedJurisdiction(
-            code="ALL",
-            label=labels["ALL"],
-            tax_years=[DEFAULT_BASELINE_TAX_YEAR],
+    db = get_un_jurisdiction_db()
+    jurisdictions: list[SupportedJurisdiction] = []
+    seen_codes: set[str] = set()
+    for jurisdiction in sorted(db.jurisdictions.values(), key=lambda item: item.name):
+        years = sorted(set(year_map.get(jurisdiction.iso_code, []) or [DEFAULT_BASELINE_TAX_YEAR]), reverse=True)
+        jurisdictions.append(
+            SupportedJurisdiction(
+                code=jurisdiction.iso_code,
+                label=jurisdiction.name,
+                tax_years=years,
+            )
         )
-    )
+        seen_codes.add(jurisdiction.iso_code)
+
+    for code, years in sorted(year_map.items()):
+        if code in seen_codes:
+            continue
+        jurisdictions.append(
+            SupportedJurisdiction(
+                code=code,
+                label=code,
+                tax_years=sorted(set(years), reverse=True),
+            )
+        )
     return jurisdictions
 
 
-def get_jurisdiction_rule_templates(jurisdictions: list[str], tax_year: int) -> list[JurisdictionRuleTemplate]:
+def get_jurisdiction_rule_templates(jurisdictions: list[str], tax_year: int | None) -> list[JurisdictionRuleTemplate]:
     codes = list(dict.fromkeys(code.upper() for code in jurisdictions if code.strip()))
     if not codes:
         raise HTTPException(status_code=400, detail="At least one jurisdiction code is required.")
@@ -1441,7 +1517,11 @@ def get_jurisdiction_rule_templates(jurisdictions: list[str], tax_year: int) -> 
     labels = {item.code: item.label for item in list_supported_jurisdictions()}
     templates: list[JurisdictionRuleTemplate] = []
     for code in codes:
-        ruleset = load_rule_set(code, tax_year)
+        available_years = _available_tax_years_for_jurisdiction(code)
+        if not available_years:
+            raise HTTPException(status_code=404, detail=f"No tax rules found for jurisdiction {code}.")
+        resolved_year = tax_year if tax_year in available_years else available_years[0]
+        ruleset = load_rule_set(code, resolved_year)
         templates.append(
             JurisdictionRuleTemplate(
                 jurisdiction=ruleset.jurisdiction,

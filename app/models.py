@@ -128,6 +128,11 @@ class ReportLineItem(BaseModel):
 class ReportSummary(BaseModel):
     jurisdiction: str
     tax_year: int
+    requested_tax_year: int | None = None
+    period_start: datetime
+    period_end: datetime
+    period_label: str
+    tax_year_selection_note: str
     total_taxable_income_usd: float
     total_capital_gains_usd: float
     total_capital_losses_usd: float
@@ -312,13 +317,13 @@ class AutonomyPlan(BaseModel):
 
 class GenerateReportRequest(BaseModel):
     jurisdiction: str = Field(min_length=2, max_length=8)
-    tax_year: int = Field(ge=2000)
+    tax_year: int | None = Field(default=None, ge=2000)
     transactions: list[TransactionRecord]
 
 
 class MultiJurisdictionReportRequest(BaseModel):
     jurisdictions: list[str] = Field(min_length=1)
-    tax_year: int = Field(ge=2000)
+    tax_year: int | None = Field(default=None, ge=2000)
     transactions: list[TransactionRecord]
 
 
