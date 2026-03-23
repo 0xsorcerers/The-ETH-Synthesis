@@ -30,6 +30,7 @@ from app.insights_api import router as insights_router
 from app.un_jurisdiction_api import router as un_jurisdiction_router
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+SKILL_PATH = Path(__file__).resolve().parent.parent / "skill.md"
 
 app = FastAPI(
     title="Skynet Tax Engine",
@@ -47,6 +48,11 @@ app.include_router(un_jurisdiction_router)
 @app.get("/", include_in_schema=False)
 def index() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.get("/skill", include_in_schema=False)
+def skill() -> FileResponse:
+    return FileResponse(SKILL_PATH)
 
 
 @app.get("/health")
@@ -82,7 +88,7 @@ async def ingestion_readiness_from_csv(file: UploadFile = File(...)):
 @app.post("/autonomy/plan-from-csv")
 async def autonomy_plan_from_csv(
     jurisdiction: str = Form(...),
-    tax_year: int = Form(...),
+    tax_year: int | None = Form(None),
     file: UploadFile = File(...),
 ):
     return build_autonomy_plan(await file.read(), jurisdiction, tax_year)
@@ -135,7 +141,7 @@ def save_artifacts(request: GenerateReportRequest):
 @app.post("/reports/generate-from-csv")
 async def create_report_from_csv(
     jurisdiction: str = Form(...),
-    tax_year: int = Form(...),
+    tax_year: int | None = Form(None),
     file: UploadFile = File(...),
 ):
     transactions = parse_transactions_csv(await file.read())
@@ -147,7 +153,7 @@ async def create_report_from_csv(
 @app.post("/reports/generate-multi-from-csv")
 async def create_multi_jurisdiction_report_from_csv(
     jurisdictions: str = Form(...),
-    tax_year: int = Form(...),
+    tax_year: int | None = Form(None),
     file: UploadFile = File(...),
 ):
     transactions = parse_transactions_csv(await file.read())
@@ -164,7 +170,7 @@ async def create_multi_jurisdiction_report_from_csv(
 @app.get("/rules/templates")
 def jurisdiction_rule_templates(
     jurisdictions: str = Query(..., description="Comma-separated jurisdiction codes."),
-    tax_year: int = Query(...),
+    tax_year: int | None = Query(None),
 ):
     jurisdiction_list = [code.strip().upper() for code in jurisdictions.split(",") if code.strip()]
     return get_jurisdiction_rule_templates(jurisdiction_list, tax_year)
@@ -173,7 +179,7 @@ def jurisdiction_rule_templates(
 @app.post("/normalize/preview-from-csv")
 async def normalize_preview_from_csv(
     jurisdiction: str = Form(...),
-    tax_year: int = Form(...),
+    tax_year: int | None = Form(None),
     file: UploadFile = File(...),
 ):
     transactions = parse_transactions_csv(await file.read())
@@ -185,7 +191,7 @@ async def normalize_preview_from_csv(
 @app.post("/reports/export-markdown-from-csv")
 async def create_report_markdown_from_csv(
     jurisdiction: str = Form(...),
-    tax_year: int = Form(...),
+    tax_year: int | None = Form(None),
     file: UploadFile = File(...),
 ) -> PlainTextResponse:
     transactions = parse_transactions_csv(await file.read())
@@ -199,7 +205,7 @@ async def create_report_markdown_from_csv(
 @app.post("/reports/export-html-from-csv")
 async def create_report_html_from_csv(
     jurisdiction: str = Form(...),
-    tax_year: int = Form(...),
+    tax_year: int | None = Form(None),
     file: UploadFile = File(...),
 ) -> PlainTextResponse:
     transactions = parse_transactions_csv(await file.read())
@@ -213,7 +219,7 @@ async def create_report_html_from_csv(
 @app.post("/artifacts/save-from-csv")
 async def save_artifacts_from_csv(
     jurisdiction: str = Form(...),
-    tax_year: int = Form(...),
+    tax_year: int | None = Form(None),
     file: UploadFile = File(...),
 ):
     transactions = parse_transactions_csv(await file.read())
