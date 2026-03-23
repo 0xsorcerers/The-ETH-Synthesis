@@ -199,6 +199,25 @@ def test_partner_catalog_endpoint():
     assert any(item["id"] == "self" and item["status"] == "planned" for item in body)
 
 
+def test_security_headers_present_on_health_endpoint():
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert response.headers["x-frame-options"] == "DENY"
+    assert "max-age=31536000" in response.headers["strict-transport-security"]
+
+
+def test_insights_enhancement_plan_endpoint():
+    response = client.get("/insights/enhancement-plan")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["backlog_count"] >= 1
+    assert "Every accepted insight must map to at least one implementation task" in body["guideline_note"]
+    assert len(body["backlog"][0]["implementation_tasks"]) >= 1
+
+
 def test_supported_jurisdictions_endpoint():
     response = client.get("/jurisdictions")
 
